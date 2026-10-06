@@ -5,5 +5,8 @@ import type { User } from '@/payload-types'
 // Boolean-only access functions can be used for both collection access and field access.
 export type BooleanAccess = (args: { req: PayloadRequest }) => boolean
 
-export const checkRole = (user: User | null | undefined, roles: User['role'][]): boolean =>
-  Boolean(user && roles.includes(user.role))
+export const checkRole = (
+  user: { role?: User['role'] | null } | null | undefined,
+  roles: User['role'][],
+): boolean =>
+  Boolean(user?.role && roles.includes(user.role))

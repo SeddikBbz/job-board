@@ -195,14 +195,14 @@ Field-level rules:
 
 ### M4. Jobs
 
-- [ ] Create `jobs` collection with fields above.
-- [ ] Auto-generate a unique `slug` from `title`.
-- [ ] Set `publishedAt` automatically the first time `status` becomes `published`.
-- [ ] Validate: `salaryMax >= salaryMin`; `expiresAt` must be in the future when publishing.
-- [ ] Employer can only attach jobs to a company they own.
-- [ ] Apply read access: public sees `published` and non-expired only.
-- [ ] Add DB indexes on `status`, `jobType`, `workMode`, `company`, `expiresAt`.
-- [ ] After change, call `revalidatePath('/jobs')` and the job's own path (skip when `context.disableRevalidate` is set).
+- [x] Create `jobs` collection with fields above.
+- [x] Auto-generate a unique `slug` from `title`.
+- [x] Set `publishedAt` automatically the first time `status` becomes `published`.
+- [x] Validate: `salaryMax >= salaryMin`; `expiresAt` must be in the future when publishing.
+- [x] Employer can only attach jobs to a company they own.
+- [x] Apply read access: public sees `published` and non-expired only.
+- [x] Add DB indexes on `status`, `jobType`, `workMode`, `company`, `expiresAt`.
+- [x] After change, call `revalidatePath('/jobs')` and the job's own path (skip when `context.disableRevalidate` is set).
 
 **Done when:** a draft job is invisible to the public API; a published job appears; another employer cannot edit it.
 

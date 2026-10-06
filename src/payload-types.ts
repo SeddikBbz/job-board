@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     resumes: Resume;
     companies: Company;
+    jobs: Job;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     resumes: ResumesSelect<false> | ResumesSelect<true>;
     companies: CompaniesSelect<false> | CompaniesSelect<true>;
+    jobs: JobsSelect<false> | JobsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -232,6 +234,46 @@ export interface Company {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs".
+ */
+export interface Job {
+  id: number;
+  title: string;
+  /**
+   * Generated from the title if left empty.
+   */
+  slug?: string | null;
+  company: number | Company;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  location?: string | null;
+  jobType?: ('full-time' | 'part-time' | 'contract' | 'internship') | null;
+  workMode?: ('onsite' | 'hybrid' | 'remote') | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  salaryCurrency?: ('DZD' | 'EUR' | 'USD') | null;
+  skills?: string[] | null;
+  status: 'draft' | 'published' | 'closed';
+  publishedAt?: string | null;
+  expiresAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -269,6 +311,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'companies';
         value: number | Company;
+      } | null)
+    | ({
+        relationTo: 'jobs';
+        value: number | Job;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -415,6 +461,28 @@ export interface CompaniesSelect<T extends boolean = true> {
   location?: T;
   size?: T;
   owner?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs_select".
+ */
+export interface JobsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  company?: T;
+  description?: T;
+  location?: T;
+  jobType?: T;
+  workMode?: T;
+  salaryMin?: T;
+  salaryMax?: T;
+  salaryCurrency?: T;
+  skills?: T;
+  status?: T;
+  publishedAt?: T;
+  expiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
