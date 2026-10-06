@@ -208,9 +208,9 @@ Field-level rules:
 
 ### M5. Seed data
 
-- [ ] Write `src/seed.ts` (run with `pnpm payload run src/seed.ts`).
-- [ ] Create 1 admin, 3 employers, 10 candidates, 8 companies, 40 jobs with varied types, modes, locations and skills, and 30 applications.
-- [ ] Make the script idempotent or add a `--reset` option.
+- [x] Write `src/seed.ts` (run with `pnpm payload run src/seed.ts`).
+- [x] Create 1 admin, 3 employers, 10 candidates, 8 companies, 40 jobs with varied types, modes, locations and skills, and 30 applications.
+- [x] Make the script idempotent or add a `--reset` option.
 
 **Done when:** a fresh database has realistic data after one command.
 
@@ -340,7 +340,7 @@ Field-level rules:
 ## 6. Common gotchas (for the agent)
 
 - Local API ignores access control unless `overrideAccess: false` is set.
-- Payload does not enforce compound unique constraints; use a hook for "one application per candidate per job".
+- Payload 3.x supports compound unique indexes (`indexes: [{ fields, unique: true }]`); we use one for "one application per candidate per job", plus a hook for a friendly error.
 - Field-level `access.create` runs for the first user too, so the first-user bootstrap must be handled in a hook.
 - In development Payload may auto-sync the Postgres schema; in production always use migrations.
 - Use the Neon **pooled** connection string for the running app. If migrations fail through the pooler, run them with the direct connection string.

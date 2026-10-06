@@ -4,11 +4,15 @@ import { checkRole } from '@/access/checkRole'
 import type { User } from '@/payload-types'
 
 export const protectRole: CollectionBeforeChangeHook<User> = async ({
+  context,
   data,
   operation,
   originalDoc,
   req,
 }) => {
+  // Trusted server scripts (the seed) set roles explicitly. HTTP requests cannot set context.
+  if (context.skipRoleProtection) return data
+
   // First-user bootstrap: the very first account becomes the admin.
   // Done in a hook because field-level access also runs for the first user.
   if (operation === 'create') {

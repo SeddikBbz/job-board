@@ -42,3 +42,14 @@ Open http://localhost:3000/admin and create the first user (the admin).
 
 - `media` (company logos) is public. `resumes` (PDF, max 5 MB) is private and always served through Payload (`/api/resumes/file/...`) so access control applies.
 - With `BLOB_READ_WRITE_TOKEN` set, files go to Vercel Blob. Without it (local dev), files are stored on disk in `media/` and `resumes/` (both git-ignored).
+
+## Seed data
+
+```bash
+pnpm seed         # adds demo data (skips if already seeded)
+pnpm seed:reset   # deletes all seed data, then seeds again
+```
+
+Creates 1 admin, 3 employers, 10 candidates, 8 companies (with logos), 40 jobs and 30 applications.
+All seed users use `@seed.local` emails (e.g. `admin@seed.local`, `employer1@seed.local`, `candidate1@seed.local`)
+and the password from `SEED_PASSWORD` (default `password123`). The seed refuses to run in production.
