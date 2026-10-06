@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/access/isAdmin'
 import { isAdminOrSelf } from '@/access/isAdminOrSelf'
+import { canReadUsers } from '@/access/users'
 import { protectRole } from '@/hooks/protectRole'
 import { resetPasswordEmail } from '@/lib/email/resetPassword'
 
@@ -21,7 +22,7 @@ export const Users: CollectionConfig = {
   access: {
     // Only admins can open the admin panel
     admin: isAdmin,
-    read: isAdminOrSelf,
+    read: canReadUsers,
     // Anyone can sign up; the role is restricted by a hook
     create: () => true,
     update: isAdminOrSelf,

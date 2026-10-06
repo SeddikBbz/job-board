@@ -253,15 +253,15 @@ Field-level rules:
 ### M9. Dashboards
 
 **Candidate** (`/dashboard/applications`)
-- [ ] List own applications with job, company, date and status.
+- [x] List own applications with job, company, date and status.
 - [ ] Withdraw option only if the plan allows it (optional, ask the owner first).
 
 **Employer** (`/dashboard/jobs`)
-- [ ] Company profile edit page with logo upload.
-- [ ] List own jobs with status, applicant count, expiry.
-- [ ] Create and edit job forms (Server Actions with Zod).
-- [ ] Publish, close and reopen actions.
-- [ ] `/dashboard/jobs/[id]/applicants`: list applicants, download resume (through Payload access control), change status.
+- [x] Company profile edit page with logo upload.
+- [x] List own jobs with status, applicant count, expiry.
+- [x] Create and edit job forms (Server Actions with Zod).
+- [x] Publish, close and reopen actions.
+- [x] `/dashboard/jobs/[id]/applicants`: list applicants, download resume (through Payload access control), change status.
 
 **Done when:** each role sees only its own data; an employer cannot open another employer's applicants page.
 
