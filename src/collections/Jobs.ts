@@ -105,9 +105,10 @@ export const Jobs: CollectionConfig = {
       relationTo: 'companies',
       required: true,
       index: true,
-      // In the admin panel, employers only see their own company
+      // Employers can only pick their own company. Payload also enforces this on save.
+      // No user means trusted server code (e.g. the seed), so no filter.
       filterOptions: ({ user }) =>
-        checkRole(user, ['admin']) ? true : { owner: { equals: user?.id } },
+        !user || checkRole(user, ['admin']) ? true : { owner: { equals: user.id } },
     },
     { name: 'description', type: 'richText', required: true },
     { name: 'location', type: 'text' },
