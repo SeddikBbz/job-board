@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { ApplySection } from '@/components/apply-section'
 import { CompanyLogo } from '@/components/company-logo'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -80,18 +81,22 @@ export default async function JobPage({ params }: Props) {
             {job.workMode && <Badge variant="secondary">{WORK_MODE_LABELS[job.workMode]}</Badge>}
           </div>
         </div>
-        {/* The real apply form arrives in M8 */}
-        <Button size="lg" disabled title="Applying opens soon">
-          Apply now
+        <Button size="lg" asChild>
+          <a href="#apply">Apply now</a>
         </Button>
       </header>
 
       <Separator className="my-8" />
 
       <div className="grid gap-10 md:grid-cols-[1fr_220px]">
-        <article className="prose-sm max-w-none space-y-4 leading-7 [&_a]:text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc">
-          <RichText data={job.description} />
-        </article>
+        <div className="space-y-10">
+          <article className="prose-sm max-w-none space-y-4 leading-7 [&_a]:text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc">
+            <RichText data={job.description} />
+          </article>
+          <section id="apply" aria-label="Apply" className="scroll-mt-20">
+            <ApplySection jobId={job.id} jobSlug={job.slug ?? ''} jobTitle={job.title} />
+          </section>
+        </div>
 
         <aside className="space-y-6 text-sm">
           {job.skills?.length ? (

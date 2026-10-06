@@ -7,6 +7,12 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      // Resumes can be up to 5 MB (default limit is 1 MB)
+      bodySizeLimit: '6mb',
+    },
+  },
   images: {
     localPatterns: [
       {

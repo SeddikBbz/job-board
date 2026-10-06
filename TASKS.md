@@ -242,11 +242,11 @@ Field-level rules:
 
 ### M8. Applications
 
-- [ ] "Apply" form on the job page (logged-in candidates only) with cover letter and PDF resume.
-- [ ] Server Action: validate with Zod, check session, check the job is `published` and not expired, upload the resume to `resumes`, then create the application with `overrideAccess: false` and `user`.
-- [ ] Prevent duplicate applications (check in a `beforeValidate` hook).
-- [ ] Show "Already applied" state on the job page.
-- [ ] Friendly error and success messages.
+- [x] "Apply" form on the job page (logged-in candidates only) with cover letter and PDF resume.
+- [x] Server Action: validate with Zod, check session, check the job is `published` and not expired, upload the resume to `resumes`, then create the application with `overrideAccess: false` and `user`.
+- [x] Prevent duplicate applications (check in a `beforeValidate` hook).
+- [x] Show "Already applied" state on the job page.
+- [x] Friendly error and success messages.
 
 **Done when:** a candidate can apply once per job; the second attempt is rejected; an employer cannot apply.
 
