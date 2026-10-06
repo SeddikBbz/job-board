@@ -16,7 +16,7 @@ export const Media: CollectionConfig = {
     delete: isAdmin,
   },
   hooks: {
-    beforeChange: [setOwner],
+    beforeValidate: [setOwner],
   },
   fields: [
     {

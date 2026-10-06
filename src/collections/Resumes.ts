@@ -30,8 +30,7 @@ export const Resumes: CollectionConfig = {
     delete: isAdmin,
   },
   hooks: {
-    beforeValidate: [limitFileSize],
-    beforeChange: [setOwner],
+    beforeValidate: [limitFileSize, setOwner],
   },
   fields: [ownerField],
   upload: {
