@@ -154,23 +154,23 @@ Field-level rules:
 
 ### M0. Project setup
 
-- [ ] Create a Neon project and copy the connection string.
-- [ ] Run `npx create-payload-app@latest job-board` (template: `blank`, database: PostgreSQL, paste the Neon string).
-- [ ] Start the app with `pnpm dev` and create the first admin user at `/admin`.
-- [ ] Initialize Git, create `.gitignore` check (`.env` must be ignored), push to a GitHub repo.
-- [ ] Add `.env.example` with all variable names from the table above (no values).
-- [ ] Add scripts to `package.json`: `lint`, `typecheck` (`tsc --noEmit`), `test`.
-- [ ] Add a short `README.md` (what the project is, how to run it).
+- [x] Create a Neon project and copy the connection string.
+- [x] Run `npx create-payload-app@latest job-board` (template: `blank`, database: PostgreSQL, paste the Neon string).
+- [x] Start the app with `pnpm dev` and create the first admin user at `/admin`.
+- [x] Initialize Git, create `.gitignore` check (`.env` must be ignored), push to a GitHub repo.
+- [x] Add `.env.example` with all variable names from the table above (no values).
+- [x] Add scripts to `package.json`: `lint`, `typecheck` (`tsc --noEmit`), `test`.
+- [x] Add a short `README.md` (what the project is, how to run it).
 
 **Done when:** `/admin` opens, `pnpm build` passes, the repo is on GitHub with no secrets in it.
 
 ### M1. Users and roles
 
-- [ ] Add `name` and `role` fields to `Users` as defined above.
-- [ ] Create `src/access/` with helpers: `isAdmin`, `isEmployer`, `isCandidate`, `isLoggedIn`, `isAdminOrSelf`.
-- [ ] Block non-admins from changing `role` (field-level access) and from entering the admin panel (`access.admin` allows only `admin`).
-- [ ] Add a `beforeChange` hook on `users`: if there are **no users yet**, set `role = 'admin'` (first-user bootstrap). Otherwise, if the request user is not an admin, allow only `candidate` or `employer` on create and force `role` unchanged on update.
-- [ ] Run `pnpm payload generate:types`.
+- [x] Add `name` and `role` fields to `Users` as defined above.
+- [x] Create `src/access/` with helpers: `isAdmin`, `isEmployer`, `isCandidate`, `isLoggedIn`, `isAdminOrSelf`.
+- [x] Block non-admins from changing `role` (field-level access) and from entering the admin panel (`access.admin` allows only `admin`).
+- [x] Add a `beforeChange` hook on `users`: if there are **no users yet**, set `role = 'admin'` (first-user bootstrap). Otherwise, if the request user is not an admin, allow only `candidate` or `employer` on create and force `role` unchanged on update.
+- [x] Run `pnpm payload generate:types`.
 
 **Done when:** the first user is an admin; a new signup via API cannot become `admin`; a candidate cannot open `/admin`.
 
