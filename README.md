@@ -37,3 +37,8 @@ Open http://localhost:3000/admin and create the first user (the admin).
 | `pnpm typecheck` | Type-check with `tsc --noEmit` |
 | `pnpm test` | Run integration (Vitest) and end-to-end (Playwright) tests |
 | `pnpm generate:types` | Regenerate `src/payload-types.ts` after changing collections |
+
+## File storage
+
+- `media` (company logos) is public. `resumes` (PDF, max 5 MB) is private and always served through Payload (`/api/resumes/file/...`) so access control applies.
+- With `BLOB_READ_WRITE_TOKEN` set, files go to Vercel Blob. Without it (local dev), files are stored on disk in `media/` and `resumes/` (both git-ignored).

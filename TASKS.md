@@ -176,10 +176,10 @@ Field-level rules:
 
 ### M2. Media, resumes and storage
 
-- [ ] Create `media` collection (images only, public read).
-- [ ] Create `resumes` collection (PDF only, size limit 5 MB, private access as in the matrix).
-- [ ] Install and configure the Vercel Blob storage adapter for both collections. Use local disk in development if no token is set.
-- [ ] Configure `sharp` for image resizing.
+- [x] Create `media` collection (images only, public read).
+- [x] Create `resumes` collection (PDF only, size limit 5 MB, private access as in the matrix).
+- [x] Install and configure the Vercel Blob storage adapter for both collections. Use local disk in development if no token is set.
+- [x] Configure `sharp` for image resizing.
 
 **Done when:** a logo uploads and displays; a resume uploads and cannot be opened by a different candidate.
 
