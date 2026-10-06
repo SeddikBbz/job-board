@@ -230,13 +230,13 @@ Field-level rules:
 
 ### M7. Authentication pages
 
-- [ ] `/register` with name, email, password, role choice (`candidate` or `employer`).
-- [ ] `/login` and logout action using Payload's auth endpoints.
-- [ ] Read the current user on the server with `payload.auth({ headers })` and expose it through a small helper (`getCurrentUser()`).
-- [ ] Protect `/dashboard/**` (redirect to `/login` when logged out).
-- [ ] Header shows login/register or the user menu.
-- [ ] Add Cloudflare Turnstile to register and login forms; verify the token on the server.
-- [ ] Add "forgot password" and "reset password" pages using Payload's flow, with the email sent through the email adapter.
+- [x] `/register` with name, email, password, role choice (`candidate` or `employer`).
+- [x] `/login` and logout action using Payload's auth endpoints.
+- [x] Read the current user on the server with `payload.auth({ headers })` and expose it through a small helper (`getCurrentUser()`).
+- [x] Protect `/dashboard/**` (redirect to `/login` when logged out).
+- [x] Header shows login/register or the user menu.
+- [x] Add Cloudflare Turnstile to register and login forms; verify the token on the server.
+- [x] Add "forgot password" and "reset password" pages using Payload's flow, with the email sent through the email adapter.
 
 **Done when:** register, login, logout and password reset all work; a logged-out visitor cannot see `/dashboard`.
 

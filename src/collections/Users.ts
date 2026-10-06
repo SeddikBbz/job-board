@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access/isAdmin'
 import { isAdminOrSelf } from '@/access/isAdminOrSelf'
 import { protectRole } from '@/hooks/protectRole'
+import { resetPasswordEmail } from '@/lib/email/resetPassword'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -10,7 +11,13 @@ export const Users: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'role'],
   },
-  auth: true,
+  auth: {
+    forgotPassword: {
+      generateEmailSubject: () => 'Reset your JobBoard password',
+      generateEmailHTML: ({ token, user } = {}) =>
+        resetPasswordEmail({ token: token ?? '', name: user?.name }),
+    },
+  },
   access: {
     // Only admins can open the admin panel
     admin: isAdmin,

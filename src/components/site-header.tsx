@@ -1,6 +1,8 @@
 import { BriefcaseBusiness } from 'lucide-react'
 import Link from 'next/link'
 
+import { UserNav } from '@/components/user-nav'
+
 export function SiteHeader() {
   return (
     <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
@@ -13,7 +15,7 @@ export function SiteHeader() {
           <Link href="/jobs" className="hover:bg-muted rounded-md px-3 py-2">
             Browse jobs
           </Link>
-          {/* Login / register / user menu are added in M7 */}
+          <UserNav />
         </nav>
       </div>
     </header>

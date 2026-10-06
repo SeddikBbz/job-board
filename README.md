@@ -53,3 +53,11 @@ pnpm seed:reset   # deletes all seed data, then seeds again
 Creates 1 admin, 3 employers, 10 candidates, 8 companies (with logos), 40 jobs and 30 applications.
 All seed users use `@seed.local` emails (e.g. `admin@seed.local`, `employer1@seed.local`, `candidate1@seed.local`)
 and the password from `SEED_PASSWORD` (default `password123`). The seed refuses to run in production.
+
+## Authentication
+
+- `/register`, `/login`, `/forgot-password`, `/reset-password` use Server Actions with Zod validation and Payload's auth (`@payloadcms/next/auth`).
+- Public signup can only choose `candidate` or `employer`; the first user ever created becomes `admin`.
+- `/dashboard/**` requires a logged-in user.
+- **Cloudflare Turnstile** protects register and login. Outside production, if `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` are not set, Cloudflare's official test keys are used (the check always passes). In production, real keys are required, or login and register will refuse requests.
+- Until email is configured (M10), password reset emails are only logged to the server console (recipient and subject).
