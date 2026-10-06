@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     resumes: Resume;
+    companies: Company;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     resumes: ResumesSelect<false> | ResumesSelect<true>;
+    companies: CompaniesSelect<false> | CompaniesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -210,6 +212,26 @@ export interface Resume {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies".
+ */
+export interface Company {
+  id: number;
+  name: string;
+  /**
+   * Generated from the name if left empty.
+   */
+  slug?: string | null;
+  logo?: (number | null) | Media;
+  website?: string | null;
+  description?: string | null;
+  location?: string | null;
+  size?: ('1-10' | '11-50' | '51-200' | '201-1000' | '1000+') | null;
+  owner: number | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -243,6 +265,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'resumes';
         value: number | Resume;
+      } | null)
+    | ({
+        relationTo: 'companies';
+        value: number | Company;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -375,6 +401,22 @@ export interface ResumesSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "companies_select".
+ */
+export interface CompaniesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  logo?: T;
+  website?: T;
+  description?: T;
+  location?: T;
+  size?: T;
+  owner?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

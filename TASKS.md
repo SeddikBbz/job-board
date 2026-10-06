@@ -185,11 +185,11 @@ Field-level rules:
 
 ### M3. Companies
 
-- [ ] Create `companies` collection with fields above.
-- [ ] Auto-generate a unique `slug` from `name` (hook).
-- [ ] Default `owner` to the current user on create.
-- [ ] Apply access rules from the matrix.
-- [ ] Limit employers to one company each (validation), unless an admin.
+- [x] Create `companies` collection with fields above.
+- [x] Auto-generate a unique `slug` from `name` (hook).
+- [x] Default `owner` to the current user on create.
+- [x] Apply access rules from the matrix.
+- [x] Limit employers to one company each (validation), unless an admin.
 
 **Done when:** an employer can create and edit only their own company; others get 403.
 
