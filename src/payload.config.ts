@@ -11,6 +11,7 @@ import { Media } from './collections/Media'
 import { Resumes } from './collections/Resumes'
 import { Companies } from './collections/Companies'
 import { Jobs } from './collections/Jobs'
+import { Applications } from './collections/Applications'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,7 +23,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Resumes, Companies, Jobs],
+  collections: [Users, Media, Resumes, Companies, Jobs, Applications],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

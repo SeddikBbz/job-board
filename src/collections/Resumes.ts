@@ -1,7 +1,7 @@
 import { APIError, type CollectionBeforeValidateHook, type CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/access/isAdmin'
-import { isAdminOrOwner } from '@/access/isAdminOrOwner'
+import { canReadResumes } from '@/access/applications'
 import { isCandidate } from '@/access/isCandidate'
 import { ownerField } from '@/fields/owner'
 import { setOwner } from '@/hooks/setOwner'
@@ -23,8 +23,7 @@ const limitFileSize: CollectionBeforeValidateHook = ({ data, req }) => {
 export const Resumes: CollectionConfig = {
   slug: 'resumes',
   access: {
-    // TODO(M8): also let employers read resumes attached to applications for their own jobs
-    read: isAdminOrOwner,
+    read: canReadResumes,
     create: isCandidate,
     update: () => false,
     delete: isAdmin,
