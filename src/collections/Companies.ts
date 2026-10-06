@@ -1,4 +1,9 @@
-import { APIError, type CollectionBeforeValidateHook, type CollectionConfig } from 'payload'
+import {
+  APIError,
+  type CollectionBeforeDeleteHook,
+  type CollectionBeforeValidateHook,
+  type CollectionConfig,
+} from 'payload'
 
 import { checkRole } from '@/access/checkRole'
 import { isAdmin } from '@/access/isAdmin'
@@ -22,6 +27,18 @@ const oneCompanyPerEmployer: CollectionBeforeValidateHook = async ({ data, opera
   return data
 }
 
+// jobs.company is required, so a company with jobs cannot be deleted (the DB would reject it).
+const preventDeleteWithJobs: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  const { totalDocs } = await req.payload.count({
+    collection: 'jobs',
+    where: { company: { equals: id } },
+    req,
+  })
+  if (totalDocs > 0) {
+    throw new APIError('This company still has jobs. Delete its jobs first.', 400, undefined, true)
+  }
+}
+
 export const Companies: CollectionConfig = {
   slug: 'companies',
   admin: {
@@ -37,6 +54,7 @@ export const Companies: CollectionConfig = {
   hooks: {
     // Order matters: owner must be set before the one-company check and validation
     beforeValidate: [setOwner, oneCompanyPerEmployer, uniqueSlug('name')],
+    beforeDelete: [preventDeleteWithJobs],
   },
   fields: [
     {
