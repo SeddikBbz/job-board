@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/access/isAdmin'
 import { isAdminOrSelf } from '@/access/isAdminOrSelf'
+import { protectRole } from '@/hooks/protectRole'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -18,6 +19,9 @@ export const Users: CollectionConfig = {
     create: () => true,
     update: isAdminOrSelf,
     delete: isAdmin,
+  },
+  hooks: {
+    beforeChange: [protectRole],
   },
   fields: [
     // Email added by default
