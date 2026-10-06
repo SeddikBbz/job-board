@@ -216,15 +216,15 @@ Field-level rules:
 
 ### M6. Public frontend: jobs
 
-- [ ] Set up Tailwind and shadcn/ui; create layout, header, footer, and a theme.
-- [ ] `/` home page: search box, featured categories, latest jobs.
-- [ ] `/jobs` list page (Server Component) reading **filters from the URL**: `q`, `type`, `mode`, `location`, `salaryMin`, `skills`, `sort`, `page`.
-- [ ] Build the Payload `where` query from filters (`and`, `or`, `like`, `in`, `greater_than_equal`). Paginate with `limit` and `page`.
-- [ ] Filter UI that updates the URL (client component using `useRouter` and `useSearchParams`), with a "clear filters" button.
-- [ ] `/jobs/[slug]` detail page with `generateMetadata` and `notFound()`.
-- [ ] `/companies/[slug]` page listing the company and its open jobs.
-- [ ] Add `loading.tsx`, `error.tsx`, `not-found.tsx` for key routes.
-- [ ] Empty state when no jobs match.
+- [x] Set up Tailwind and shadcn/ui; create layout, header, footer, and a theme.
+- [x] `/` home page: search box, featured categories, latest jobs.
+- [x] `/jobs` list page (Server Component) reading **filters from the URL**: `q`, `type`, `mode`, `location`, `salaryMin`, `skills`, `sort`, `page`.
+- [x] Build the Payload `where` query from filters (`and`, `or`, `like`, `in`, `greater_than_equal`). Paginate with `limit` and `page`.
+- [x] Filter UI that updates the URL (client component using `useRouter` and `useSearchParams`), with a "clear filters" button.
+- [x] `/jobs/[slug]` detail page with `generateMetadata` and `notFound()`.
+- [x] `/companies/[slug]` page listing the company and its open jobs.
+- [x] Add `loading.tsx`, `error.tsx`, `not-found.tsx` for key routes.
+- [x] Empty state when no jobs match.
 
 **Done when:** filters work from a shared URL; page 2 works; nothing from a draft job appears anywhere.
 
