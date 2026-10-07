@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { formatDate, formatSalary, JOB_TYPE_LABELS, WORK_MODE_LABELS } from '@/lib/format'
+import { jobPostingJsonLd, serializeJsonLd } from '@/lib/jobPostingJsonLd'
 import { getJobBySlug } from '@/lib/queries'
 import type { Company } from '@/payload-types'
 
@@ -42,8 +43,14 @@ export default async function JobPage({ params }: Props) {
   const company = typeof job.company === 'object' ? (job.company as Company) : null
   const salary = formatSalary(job)
 
+  const siteUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jobPostingJsonLd(job, siteUrl)) }}
+      />
       <Button variant="ghost" size="sm" className="mb-6" asChild>
         <Link href="/jobs">
           <ArrowLeft aria-hidden /> All jobs
