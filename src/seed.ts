@@ -15,7 +15,7 @@ import type { Job, User } from './payload-types'
 
 const DOMAIN = '@seed.local'
 const PASSWORD = process.env.SEED_PASSWORD || 'password123'
-const context = { disableRevalidate: true, skipRoleProtection: true }
+const context = { disableRevalidate: true, skipRoleProtection: true, disableEmails: true }
 
 // ---------- deterministic random helpers ----------
 let state = 42

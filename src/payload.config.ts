@@ -6,12 +6,15 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
+import { checkRole } from './access/checkRole'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Resumes } from './collections/Resumes'
 import { Companies } from './collections/Companies'
 import { Jobs } from './collections/Jobs'
 import { Applications } from './collections/Applications'
+import { closeExpiredJobsTask, sendEmailTask } from './jobs/tasks'
+import { emailAdapter } from './lib/email/adapter'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -34,6 +37,19 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || '',
     },
   }),
+  email: emailAdapter(),
+  jobs: {
+    tasks: [sendEmailTask, closeExpiredJobsTask],
+    access: {
+      // GET /api/payload-jobs/run is called by Vercel Cron, which sends
+      // "Authorization: Bearer <CRON_SECRET>". Admins may also trigger it.
+      run: ({ req }) => {
+        if (checkRole(req.user, ['admin'])) return true
+        const secret = process.env.CRON_SECRET
+        return Boolean(secret) && req.headers.get('authorization') === `Bearer ${secret}`
+      },
+    },
+  },
   sharp,
   plugins: [
     // Without a token (local dev) the plugin is disabled and files are stored on local disk.

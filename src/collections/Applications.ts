@@ -11,6 +11,7 @@ import { checkRole } from '@/access/checkRole'
 import { isAdmin } from '@/access/isAdmin'
 import { isCandidate } from '@/access/isCandidate'
 import { isLoggedIn } from '@/access/isLoggedIn'
+import { applicationEmails } from '@/hooks/applicationEmails'
 import { relationId } from '@/lib/relationId'
 
 export const WITHDRAWABLE_STATUSES = ['applied', 'reviewing']
@@ -107,6 +108,7 @@ export const Applications: CollectionConfig = {
   hooks: {
     beforeValidate: [setCandidate, validateApplication],
     beforeChange: [guardStatusChange],
+    afterChange: [applicationEmails],
   },
   // One application per candidate per job, enforced by the database
   indexes: [{ fields: ['job', 'candidate'], unique: true }],
