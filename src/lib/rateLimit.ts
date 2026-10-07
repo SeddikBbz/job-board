@@ -14,6 +14,9 @@ export const RATE_LIMITS = {
 
 // Returns true if the action may proceed, false if the caller is over the limit.
 export function rateLimit(action: keyof typeof RATE_LIMITS, key: string): boolean {
+  // End-to-end tests create many accounts quickly. Never honoured in production.
+  if (process.env.DISABLE_RATE_LIMIT === '1' && process.env.NODE_ENV !== 'production') return true
+
   const { limit, windowMs } = RATE_LIMITS[action]
   const now = Date.now()
   const id = `${action}:${key}`

@@ -4,6 +4,8 @@ import { cache } from 'react'
 
 import { getPayloadClient } from './payload'
 
+export { safeRedirectPath } from './safeRedirectPath'
+
 // The logged-in user for this request (or null). Cached so several components can call it.
 export const getCurrentUser = cache(async () => {
   const payload = await getPayloadClient()
@@ -17,9 +19,3 @@ export async function requireUser(returnTo: string) {
   if (!user) redirect(`/login?next=${encodeURIComponent(returnTo)}`)
   return user
 }
-
-// Only allow same-site paths ("/dashboard"), never "//evil.com" or "https://…" (open redirect).
-export const safeRedirectPath = (value: unknown, fallback = '/dashboard') =>
-  typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\')
-    ? value
-    : fallback
