@@ -6,6 +6,7 @@ import { APIError, ValidationError } from 'payload'
 
 import { getCurrentUser } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
+import { reportUnexpectedError } from '@/lib/reportError'
 import { textToRichText } from '@/lib/richText'
 import type { FormState } from '@/lib/validation/auth'
 import {
@@ -27,6 +28,7 @@ async function currentEmployer(): Promise<User | null> {
 const errorMessage = (error: unknown, fallback: string) => {
   if (error instanceof ValidationError) return error.data.errors.map((e) => e.message).join(' ')
   if (error instanceof APIError && error.isPublic) return error.message
+  reportUnexpectedError(error, 'dashboard action')
   return fallback
 }
 

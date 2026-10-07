@@ -5,11 +5,16 @@ import { APIError } from 'payload'
 import { getCurrentUser } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
 import { rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
+import { reportUnexpectedError } from '@/lib/reportError'
 import { applySchema, MAX_RESUME_MB } from '@/lib/validation/application'
 import type { FormState } from '@/lib/validation/auth'
 
-const publicMessage = (error: unknown, fallback: string) =>
-  error instanceof APIError && error.isPublic ? error.message : fallback
+// Known errors (validation, duplicates…) are shown as-is; anything else is logged and replaced by a friendly message
+const publicMessage = (error: unknown, fallback: string) => {
+  if (error instanceof APIError && error.isPublic) return error.message
+  reportUnexpectedError(error, 'applyToJob')
+  return fallback
+}
 
 export async function applyToJob(_prev: FormState, formData: FormData): Promise<FormState> {
   const coverLetter = String(formData.get('coverLetter') ?? '')
