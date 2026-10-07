@@ -300,11 +300,11 @@ Field-level rules:
 
 ### M13. Deployment
 
-- [ ] Replace dev schema push with migrations: `pnpm payload migrate:create`, commit the migration files.
-- [ ] Create a GitHub Actions workflow: install, lint, typecheck, test, build.
+- [x] Replace dev schema push with migrations: `pnpm payload migrate:create`, commit the migration files.
+- [x] Create a GitHub Actions workflow: install, lint, typecheck, test, build.
 - [ ] Create a Vercel project from the repo; add all environment variables.
 - [ ] Create separate Neon branches for development, CI and production; keep `DATABASE_URI` per environment.
-- [ ] Run `pnpm payload migrate` as part of the production build step.
+- [x] Run `pnpm payload migrate` as part of the production build step.
 - [ ] Verify a sender domain in Resend and set `EMAIL_FROM_ADDRESS`.
 - [ ] Connect a custom domain (optional).
 - [ ] Smoke test production: register, apply, status email.
