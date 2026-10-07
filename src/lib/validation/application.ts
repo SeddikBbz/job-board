@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const MAX_RESUME_BYTES = 5 * 1024 * 1024
+export const MAX_RESUME_BYTES = 10 * 1024 * 1024
 
 export const applySchema = z.object({
   jobId: z.coerce.number().int().positive(),
