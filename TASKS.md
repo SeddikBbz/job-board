@@ -291,10 +291,10 @@ Field-level rules:
 
 ### M12. Testing
 
-- [ ] Vitest: unit tests for slug generation, filter-to-`where` builder, validators.
-- [ ] Vitest integration tests for access control (use the Local API with `overrideAccess: false` for each role).
-- [ ] Playwright: register → login → apply; employer posts job → candidate sees it; status change sends email.
-- [ ] Run tests in CI on every pull request.
+- [x] Vitest: unit tests for slug generation, filter-to-`where` builder, validators.
+- [x] Vitest integration tests for access control (use the Local API with `overrideAccess: false` for each role).
+- [x] Playwright: register → login → apply; employer posts job → candidate sees it; status change sends email.
+- [x] Run tests in CI on every pull request.
 
 **Done when:** `pnpm test` and the Playwright suite pass locally and in CI.
 

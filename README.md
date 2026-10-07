@@ -69,3 +69,18 @@ and the password from `SEED_PASSWORD` (default `password123`). The seed refuses 
 - With neither set, Payload only logs the recipient and subject to the console.
 - Emails (new applicant, application received, status changed, withdrawn, password reset) are queued as `sendEmail` jobs, then sent right after the response, so a failing email never breaks the request. Failed sends are retried up to 3 times.
 - `vercel.json` schedules a daily Vercel Cron call to `/api/payload-jobs/run` (protected by `CRON_SECRET`, sent by Vercel as a Bearer token). It runs anything still queued and the daily `closeExpiredJobs` task. Expired jobs are hidden from public pages immediately by access control; the task only updates their status.
+
+## Tests
+
+| Command | What it runs | Needs |
+|---|---|---|
+| `pnpm test:unit` | Vitest unit tests (`tests/unit`): slugs, URL filters → Payload `where`, Zod validators, helpers | nothing |
+| `pnpm test:int` | Vitest integration tests (`tests/int`): access control for every role through the Local API with `overrideAccess: false` | `DATABASE_URI` |
+| `pnpm test` | unit + integration | `DATABASE_URI` |
+| `pnpm test:e2e` | Playwright (`tests/e2e`): employer posts a job → candidate registers, logs in and applies → status change email | `DATABASE_URI`; run `mailpit` for the email check; first time: `pnpm exec playwright install chromium` |
+
+Integration and e2e tests create their own data (`@int.test` / `@e2e.test` emails) and delete it afterwards.
+They use the database in `DATABASE_URI`, so point it at a separate Neon branch for CI.
+
+**CI** (`.github/workflows/ci.yml`) runs on every pull request and push to `main`: lint, typecheck and unit tests always;
+integration, e2e and build once the `DATABASE_URI` and `PAYLOAD_SECRET` repository secrets are set.
