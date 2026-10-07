@@ -1,5 +1,6 @@
 'use client'
 
+import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button'
 // Error boundaries must be client components
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error(error) // replaced by Sentry in M11
+    Sentry.captureException(error)
   }, [error])
 
   return (
