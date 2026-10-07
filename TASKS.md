@@ -279,13 +279,13 @@ Field-level rules:
 
 ### M11. Quality and security
 
-- [ ] Rate-limit login, register and apply (simple IP-based limiter or Vercel firewall rules).
-- [ ] Add security headers in `next.config` (CSP basics, `X-Content-Type-Options`, `Referrer-Policy`).
-- [ ] Confirm every Server Action re-checks the user and role on the server.
-- [ ] Search the codebase: every Local API call made for a user passes `user` and `overrideAccess: false`.
-- [ ] Add Sentry (`@sentry/nextjs`) with source maps.
-- [ ] Accessibility pass: labels, focus states, keyboard navigation, color contrast.
-- [ ] SEO: `generateMetadata`, `sitemap.ts`, `robots.ts`, JSON-LD `JobPosting` on job pages.
+- [x] Rate-limit login, register and apply (simple IP-based limiter or Vercel firewall rules).
+- [x] Add security headers in `next.config` (CSP basics, `X-Content-Type-Options`, `Referrer-Policy`).
+- [x] Confirm every Server Action re-checks the user and role on the server.
+- [x] Search the codebase: every Local API call made for a user passes `user` and `overrideAccess: false`.
+- [x] Add Sentry (`@sentry/nextjs`) with source maps.
+- [x] Accessibility pass: labels, focus states, keyboard navigation, color contrast.
+- [x] SEO: `generateMetadata`, `sitemap.ts`, `robots.ts`, JSON-LD `JobPosting` on job pages.
 
 **Done when:** a checklist review finds no route or action that trusts the client.
 

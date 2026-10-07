@@ -32,7 +32,14 @@ function Select({ label, name, options, defaultValue, errors }: {
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <select id={name} name={name} defaultValue={defaultValue ?? ''} className={selectClass} aria-invalid={Boolean(errors) || undefined}>
+      <select
+        id={name}
+        name={name}
+        defaultValue={defaultValue ?? ''}
+        className={selectClass}
+        aria-invalid={Boolean(errors) || undefined}
+        aria-describedby={errors ? `${name}-error` : undefined}
+      >
         <option value="">—</option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -40,7 +47,11 @@ function Select({ label, name, options, defaultValue, errors }: {
           </option>
         ))}
       </select>
-      {errors && <p className="text-destructive text-sm">{errors[0]}</p>}
+      {errors && (
+        <p id={`${name}-error`} className="text-destructive text-sm">
+          {errors[0]}
+        </p>
+      )}
     </div>
   )
 }
@@ -53,12 +64,30 @@ function Textarea({ label, name, defaultValue, errors, rows = 6, hint }: {
   rows?: number
   hint?: string
 }) {
+  // Screen readers announce the error (or hint) together with the field
+  const describedBy = errors ? `${name}-error` : hint ? `${name}-hint` : undefined
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <textarea id={name} name={name} rows={rows} defaultValue={defaultValue} className={textareaClass} aria-invalid={Boolean(errors) || undefined} />
-      {hint && !errors && <p className="text-muted-foreground text-xs">{hint}</p>}
-      {errors && <p className="text-destructive text-sm">{errors[0]}</p>}
+      <textarea
+        id={name}
+        name={name}
+        rows={rows}
+        defaultValue={defaultValue}
+        className={textareaClass}
+        aria-invalid={Boolean(errors) || undefined}
+        aria-describedby={describedBy}
+      />
+      {hint && !errors && (
+        <p id={`${name}-hint`} className="text-muted-foreground text-xs">
+          {hint}
+        </p>
+      )}
+      {errors && (
+        <p id={`${name}-error`} className="text-destructive text-sm">
+          {errors[0]}
+        </p>
+      )}
     </div>
   )
 }
