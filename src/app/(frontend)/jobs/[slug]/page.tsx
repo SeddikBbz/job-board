@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { ApplyNowButton } from '@/components/apply-now-button'
 import { ApplySection } from '@/components/apply-section'
 import { CompanyLogo } from '@/components/company-logo'
 import { Badge } from '@/components/ui/badge'
@@ -88,9 +89,7 @@ export default async function JobPage({ params }: Props) {
             {job.workMode && <Badge variant="secondary">{WORK_MODE_LABELS[job.workMode]}</Badge>}
           </div>
         </div>
-        <Button size="lg" asChild>
-          <a href="#apply">Apply now</a>
-        </Button>
+        <ApplyNowButton />
       </header>
 
       <Separator className="my-8" />
