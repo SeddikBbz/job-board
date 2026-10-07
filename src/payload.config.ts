@@ -58,8 +58,9 @@ export default buildConfig({
       token: process.env.BLOB_READ_WRITE_TOKEN,
       // Keep the DB schema identical whether or not the plugin is enabled
       alwaysInsertFields: true,
-      // Blob URLs are public, so make them unguessable; resumes are still served through Payload
-      addRandomSuffix: true,
+      // No random suffix: it breaks image sizes (thumbnails get a different name than Payload stores).
+      // Resumes get a random file name instead (see Resumes.ts) and are always served through Payload.
+      addRandomSuffix: false,
       collections: {
         media: true,
         resumes: true,

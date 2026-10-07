@@ -1,4 +1,10 @@
-import { APIError, type CollectionBeforeValidateHook, type CollectionConfig } from 'payload'
+import { randomUUID } from 'crypto'
+import {
+  APIError,
+  type CollectionBeforeOperationHook,
+  type CollectionBeforeValidateHook,
+  type CollectionConfig,
+} from 'payload'
 
 import { isAdmin } from '@/access/isAdmin'
 import { canReadResumes } from '@/access/applications'
@@ -18,6 +24,13 @@ const limitFileSize: CollectionBeforeValidateHook = ({ data, req }) => {
   return data
 }
 
+// Store every resume under a random name: the Blob store is public, so file names must be
+// unguessable, and the candidate's original file name (often their full name) isn't kept.
+const randomFileName: CollectionBeforeOperationHook = ({ args, operation, req }) => {
+  if (operation === 'create' && req.file) req.file.name = `${randomUUID()}.pdf`
+  return args
+}
+
 // Private PDFs. Files are served through Payload (/api/resumes/file/...) so access control applies.
 export const Resumes: CollectionConfig = {
   slug: 'resumes',
@@ -28,6 +41,7 @@ export const Resumes: CollectionConfig = {
     delete: isAdmin,
   },
   hooks: {
+    beforeOperation: [randomFileName],
     beforeValidate: [limitFileSize, setOwner],
   },
   fields: [ownerField],
