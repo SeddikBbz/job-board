@@ -1,10 +1,17 @@
-import type { CollectionConfig } from 'payload'
+import type { Access, CollectionConfig } from 'payload'
 
+import { checkRole } from '@/access/checkRole'
 import { isAdmin } from '@/access/isAdmin'
 import { isAdminOrSelf } from '@/access/isAdminOrSelf'
 import { canReadUsers } from '@/access/users'
 import { protectRole } from '@/hooks/protectRole'
 import { resetPasswordEmail } from '@/lib/email/resetPassword'
+
+// Public signup must go through our /register server action (Zod + Turnstile + rate limit),
+// which uses the Local API. A direct POST /api/users would skip those checks, so REST and
+// GraphQL signups are only allowed for admins. (The admin panel's "create first user" screen
+// uses overrideAccess and is not affected.) The protectRole hook still restricts the role.
+const canCreateUser: Access = ({ req }) => req.payloadAPI === 'local' || checkRole(req.user, ['admin'])
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -13,6 +20,10 @@ export const Users: CollectionConfig = {
     defaultColumns: ['name', 'email', 'role'],
   },
   auth: {
+    // Brute-force protection for every login path (server action and REST):
+    // 5 wrong passwords lock the account for 10 minutes.
+    maxLoginAttempts: 5,
+    lockTime: 10 * 60 * 1000,
     forgotPassword: {
       generateEmailSubject: () => 'Reset your JobBoard password',
       generateEmailHTML: ({ token, user } = {}) =>
@@ -23,8 +34,7 @@ export const Users: CollectionConfig = {
     // Only admins can open the admin panel
     admin: isAdmin,
     read: canReadUsers,
-    // Anyone can sign up; the role is restricted by a hook
-    create: () => true,
+    create: canCreateUser,
     update: isAdminOrSelf,
     delete: isAdmin,
   },

@@ -2,12 +2,12 @@
 
 import config from '@payload-config'
 import { login, logout } from '@payloadcms/next/auth'
-import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ValidationError } from 'payload'
 
 import { safeRedirectPath } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
+import { clientIp, rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
 import { verifyTurnstile } from '@/lib/turnstile'
 import {
   forgotPasswordSchema,
@@ -17,8 +17,6 @@ import {
   type FormState,
 } from '@/lib/validation/auth'
 
-const clientIp = async () => (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? null
-
 const humanCheckFailed: FormState = {
   error: 'Please complete the "I am human" check and try again.',
 }
@@ -26,10 +24,12 @@ const humanCheckFailed: FormState = {
 export async function registerAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const raw = Object.fromEntries(formData)
   const values = { name: String(raw.name ?? ''), email: String(raw.email ?? ''), role: String(raw.role ?? '') }
+  const ip = await clientIp()
 
   const parsed = registerSchema.safeParse(raw)
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors, values }
-  if (!(await verifyTurnstile(raw.turnstileToken, await clientIp()))) return { ...humanCheckFailed, values }
+  if (!rateLimit('register', ip)) return { error: TOO_MANY_REQUESTS, values }
+  if (!(await verifyTurnstile(raw.turnstileToken, ip))) return { ...humanCheckFailed, values }
 
   const payload = await getPayloadClient()
   try {
@@ -54,10 +54,12 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const raw = Object.fromEntries(formData)
   const values = { email: String(raw.email ?? '') }
+  const ip = await clientIp()
 
   const parsed = loginSchema.safeParse(raw)
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors, values }
-  if (!(await verifyTurnstile(raw.turnstileToken, await clientIp()))) return { ...humanCheckFailed, values }
+  if (!rateLimit('login', ip)) return { error: TOO_MANY_REQUESTS, values }
+  if (!(await verifyTurnstile(raw.turnstileToken, ip))) return { ...humanCheckFailed, values }
 
   try {
     await login({ collection: 'users', config, ...parsed.data })
@@ -78,6 +80,7 @@ export async function logoutAction() {
 export async function forgotPasswordAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = forgotPasswordSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
+  if (!rateLimit('forgotPassword', await clientIp())) return { error: TOO_MANY_REQUESTS }
 
   const payload = await getPayloadClient()
   try {

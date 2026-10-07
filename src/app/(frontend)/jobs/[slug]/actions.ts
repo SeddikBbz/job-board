@@ -4,6 +4,7 @@ import { APIError } from 'payload'
 
 import { getCurrentUser } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
+import { rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
 import { applySchema } from '@/lib/validation/application'
 import type { FormState } from '@/lib/validation/auth'
 
@@ -17,6 +18,7 @@ export async function applyToJob(_prev: FormState, formData: FormData): Promise<
   const user = await getCurrentUser()
   if (!user) return { error: 'Please log in to apply.' }
   if (user.role !== 'candidate') return { error: 'Only candidate accounts can apply to jobs.' }
+  if (!rateLimit('apply', String(user.id))) return { error: TOO_MANY_REQUESTS, values: { coverLetter } }
 
   const parsed = applySchema.safeParse({
     jobId: formData.get('jobId'),
