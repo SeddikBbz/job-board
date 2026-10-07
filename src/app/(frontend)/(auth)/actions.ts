@@ -8,6 +8,7 @@ import { ValidationError } from 'payload'
 import { safeRedirectPath } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
 import { clientIp, rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
+import { reportUnexpectedError } from '@/lib/reportError'
 import { verifyTurnstile } from '@/lib/turnstile'
 import {
   forgotPasswordSchema,
@@ -105,7 +106,9 @@ export async function resetPasswordAction(_prev: FormState, formData: FormData):
       overrideAccess: false,
     })
     email = (result.user as { email: string }).email
-  } catch {
+  } catch (error) {
+    // Usually an old/used/expired token; logged so other causes show up in the server logs
+    reportUnexpectedError(error, 'resetPassword')
     return { error: 'This reset link is invalid or has expired. Please request a new one.' }
   }
 
