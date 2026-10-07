@@ -61,3 +61,11 @@ and the password from `SEED_PASSWORD` (default `password123`). The seed refuses 
 - `/dashboard/**` requires a logged-in user.
 - **Cloudflare Turnstile** protects register and login. Outside production, if `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` are not set, Cloudflare's official test keys are used (the check always passes). In production, real keys are required, or login and register will refuse requests.
 - Until email is configured (M10), password reset emails are only logged to the server console (recipient and subject).
+
+## Email and background jobs
+
+- **Local:** install [Mailpit](https://mailpit.axllent.org) (`winget install axllent.mailpit`), run `mailpit`, and set `SMTP_HOST=localhost` and `SMTP_PORT=1025` in `.env`. Emails appear at http://localhost:8025.
+- **Production / preview:** set `RESEND_API_KEY` and a verified `EMAIL_FROM_ADDRESS`.
+- With neither set, Payload only logs the recipient and subject to the console.
+- Emails (new applicant, application received, status changed, withdrawn, password reset) are queued as `sendEmail` jobs, then sent right after the response, so a failing email never breaks the request. Failed sends are retried up to 3 times.
+- `vercel.json` schedules a daily Vercel Cron call to `/api/payload-jobs/run` (protected by `CRON_SECRET`, sent by Vercel as a Bearer token). It runs anything still queued and the daily `closeExpiredJobs` task. Expired jobs are hidden from public pages immediately by access control; the task only updates their status.

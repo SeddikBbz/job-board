@@ -267,13 +267,13 @@ Field-level rules:
 
 ### M10. Emails and background work
 
-- [ ] Configure the Payload email adapter: Mailpit (nodemailer) in development, Resend in production and preview.
-- [ ] Create simple HTML email templates in `src/lib/email/`.
-- [ ] `afterChange` hook on `applications`:
+- [x] Configure the Payload email adapter: Mailpit (nodemailer) in development, Resend in production and preview.
+- [x] Create simple HTML email templates in `src/lib/email/`.
+- [x] `afterChange` hook on `applications`:
   - on create: email the employer ("New applicant") and the candidate ("Application received").
   - on update: if `status` changed, email the candidate.
-- [ ] Use Payload's jobs queue for sending (so a failed email does not break the request) if time allows. Otherwise send inline and note it in the README.
-- [ ] Scheduled task: close jobs whose `expiresAt` has passed (Payload job plus a Vercel Cron call to run the queue).
+- [x] Use Payload's jobs queue for sending (so a failed email does not break the request) if time allows. Otherwise send inline and note it in the README.
+- [x] Scheduled task: close jobs whose `expiresAt` has passed (Payload job plus a Vercel Cron call to run the queue).
 
 **Done when:** emails appear in Mailpit locally; expired jobs disappear from the public list without manual work.
 
