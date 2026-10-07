@@ -13,6 +13,7 @@ import {
   companySchema,
   jobSchema,
   jobStatusSchema,
+  withdrawSchema,
 } from '@/lib/validation/dashboard'
 import type { User } from '@/payload-types'
 
@@ -166,4 +167,30 @@ export async function updateApplicationStatus(_prev: FormState, formData: FormDa
   }
   revalidatePath('/dashboard/jobs/[id]/applicants', 'page')
   return { success: 'Status updated.' }
+}
+
+export async function withdrawApplication(_prev: FormState, formData: FormData): Promise<FormState> {
+  const user = await getCurrentUser()
+  if (!user || user.role !== 'candidate') return { error: 'Only candidates can withdraw applications.' }
+
+  const parsed = withdrawSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: 'Invalid request.' }
+
+  const payload = await getPayloadClient()
+  try {
+    // Access control limits this to the candidate's own applications;
+    // the guardStatusChange hook only allows "withdrawn" while still applied/reviewing.
+    await payload.update({
+      collection: 'applications',
+      id: parsed.data.applicationId,
+      data: { status: 'withdrawn' },
+      user,
+      overrideAccess: false,
+    })
+  } catch (error) {
+    return { error: errorMessage(error, 'Could not withdraw the application.') }
+  }
+  revalidatePath('/dashboard/applications')
+  revalidatePath('/dashboard')
+  return { success: 'Application withdrawn.' }
 }

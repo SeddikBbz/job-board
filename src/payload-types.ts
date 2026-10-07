@@ -284,7 +284,7 @@ export interface Application {
   candidate: number | User;
   resume: number | Resume;
   coverLetter?: string | null;
-  status: 'applied' | 'reviewing' | 'interview' | 'rejected' | 'hired';
+  status: 'applied' | 'reviewing' | 'interview' | 'rejected' | 'hired' | 'withdrawn';
   updatedAt: string;
   createdAt: string;
 }

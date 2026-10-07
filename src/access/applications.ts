@@ -3,21 +3,22 @@ import type { Access, Where } from 'payload'
 import { checkRole } from './checkRole'
 
 const forMyJobs = (userId: number): Where => ({ 'job.company.owner': { equals: userId } })
+const ownApplications = (userId: number): Where => ({ candidate: { equals: userId } })
 
 // Candidate: own applications. Employer: applications to their own jobs. Admin: all.
 export const canReadApplications: Access = ({ req: { user } }) => {
   if (!user) return false
   if (checkRole(user, ['admin'])) return true
   if (checkRole(user, ['employer'])) return forMyJobs(user.id)
-  const ownApplications: Where = { candidate: { equals: user.id } }
-  return ownApplications
+  return ownApplications(user.id)
 }
 
-// Only the employer who owns the job (or an admin) can update an application.
+// Employer of the job (to change status) or the candidate (only to withdraw; see guardStatusChange).
 export const canUpdateApplications: Access = ({ req: { user } }) => {
   if (!user) return false
   if (checkRole(user, ['admin'])) return true
   if (checkRole(user, ['employer'])) return forMyJobs(user.id)
+  if (checkRole(user, ['candidate'])) return ownApplications(user.id)
   return false
 }
 

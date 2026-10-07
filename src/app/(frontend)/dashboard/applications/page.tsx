@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { WITHDRAWABLE_STATUSES } from '@/collections/Applications'
 import { EmptyState } from '@/components/empty-state'
 import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
-import { requireRole, getMyApplications } from '@/lib/dashboard'
+import { WithdrawButton } from '@/components/withdraw-button'
+import { getMyApplications, requireRole } from '@/lib/dashboard'
 import { formatDate } from '@/lib/format'
 import type { Company, Job } from '@/payload-types'
 
@@ -36,6 +38,9 @@ export default async function MyApplicationsPage() {
                 <th scope="col" className="px-4 py-3 font-medium">Company</th>
                 <th scope="col" className="px-4 py-3 font-medium">Applied</th>
                 <th scope="col" className="px-4 py-3 font-medium">Status</th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -44,7 +49,7 @@ export default async function MyApplicationsPage() {
                 const job = typeof application.job === 'object' ? (application.job as Job) : null
                 const company = job && typeof job.company === 'object' ? (job.company as Company) : null
                 return (
-                  <tr key={application.id}>
+                  <tr key={application.id} className="align-top">
                     <td className="px-4 py-3">
                       {job ? (
                         <Link href={`/jobs/${job.slug}`} className="text-primary font-medium hover:underline">
@@ -58,6 +63,11 @@ export default async function MyApplicationsPage() {
                     <td className="px-4 py-3 whitespace-nowrap">{formatDate(application.createdAt)}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={application.status} />
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {WITHDRAWABLE_STATUSES.includes(application.status) && (
+                        <WithdrawButton applicationId={application.id} jobTitle={job?.title ?? 'this job'} />
+                      )}
                     </td>
                   </tr>
                 )

@@ -42,7 +42,7 @@ export default async function DashboardPage() {
 }
 
 function CandidateOverview({ applications }: { applications: Awaited<ReturnType<typeof getMyApplications>> }) {
-  const active = applications.filter((a) => !['rejected', 'hired'].includes(a.status)).length
+  const active = applications.filter((a) => !['rejected', 'hired', 'withdrawn'].includes(a.status)).length
   const interviews = applications.filter((a) => a.status === 'interview').length
   return (
     <div className="space-y-4">

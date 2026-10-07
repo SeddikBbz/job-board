@@ -81,3 +81,7 @@ export const jobStatusSchema = z.object({
   jobId: z.coerce.number().int().positive(),
   status: z.enum(['published', 'closed']),
 })
+
+export const withdrawSchema = z.object({
+  applicationId: z.coerce.number().int().positive(),
+})
