@@ -30,7 +30,7 @@ export default async function MyApplicationsPage() {
           }
         />
       ) : (
-        <div className="overflow-x-auto rounded-xl border">
+        <div className="bg-card overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-muted-foreground text-left">
               <tr>

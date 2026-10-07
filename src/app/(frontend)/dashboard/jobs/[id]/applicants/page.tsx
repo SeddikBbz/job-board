@@ -36,7 +36,7 @@ export default async function ApplicantsPage({ params }: Props) {
       {applications.length === 0 ? (
         <EmptyState title="No applicants yet" description="Applications for this job will appear here." />
       ) : (
-        <ul className="divide-y rounded-xl border">
+        <ul className="bg-card divide-y rounded-xl border">
           {applications.map((application) => {
             const candidate = typeof application.candidate === 'object' ? (application.candidate as User) : null
             const resume = typeof application.resume === 'object' ? (application.resume as Resume) : null

@@ -74,7 +74,7 @@ export function ApplySection({ jobId, jobSlug, jobTitle }: Props) {
 
   if (status.kind === 'anonymous') {
     return (
-      <div className="rounded-xl border p-5 text-sm">
+      <div className="bg-card rounded-xl border p-6 text-sm">
         <p className="font-semibold">Interested in this job?</p>
         <p className="text-muted-foreground mt-1">Log in or create a candidate account to apply.</p>
         <div className="mt-4 flex gap-2">
@@ -91,7 +91,7 @@ export function ApplySection({ jobId, jobSlug, jobTitle }: Props) {
 
   if (status.kind === 'not-candidate') {
     return (
-      <p className="text-muted-foreground rounded-xl border p-5 text-sm">
+      <p className="bg-card text-muted-foreground rounded-xl border p-6 text-sm">
         Only candidate accounts can apply to jobs.
       </p>
     )
@@ -100,7 +100,7 @@ export function ApplySection({ jobId, jobSlug, jobTitle }: Props) {
   return (
     <form
       action={action}
-      className="space-y-4 rounded-xl border p-5"
+      className="bg-card space-y-4 rounded-xl border p-6 sm:p-8"
       noValidate
       onSubmit={(e) => {
         // Stop oversized files before uploading (they would exceed the request size limit).

@@ -1,5 +1,6 @@
 'use client'
 
+import { Briefcase, Building2, FileText, LayoutDashboard, Search, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -7,40 +8,48 @@ import { cn } from '@/lib/utils'
 
 const LINKS = {
   candidate: [
-    { href: '/dashboard', label: 'Overview' },
-    { href: '/dashboard/applications', label: 'My applications' },
+    { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/applications', label: 'My applications', icon: FileText },
+    { href: '/jobs', label: 'Find jobs', icon: Search },
   ],
   employer: [
-    { href: '/dashboard', label: 'Overview' },
-    { href: '/dashboard/jobs', label: 'My jobs' },
-    { href: '/dashboard/company', label: 'Company profile' },
+    { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/jobs', label: 'My jobs', icon: Briefcase },
+    { href: '/dashboard/company', label: 'Company profile', icon: Building2 },
   ],
   admin: [
-    { href: '/dashboard', label: 'Overview' },
-    { href: '/admin', label: 'Admin panel' },
+    { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/admin', label: 'Admin panel', icon: Shield },
   ],
 } as const
 
+// Vertical sidebar on desktop, horizontal scrollable tabs on mobile
 export function DashboardNav({ role }: { role: keyof typeof LINKS }) {
   const pathname = usePathname()
   return (
-    <nav aria-label="Dashboard" className="flex gap-1 overflow-x-auto border-b">
-      {LINKS[role].map((link) => {
-        const active = link.href === '/dashboard' ? pathname === link.href : pathname.startsWith(link.href)
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            aria-current={active ? 'page' : undefined}
-            className={cn(
-              '-mb-px border-b-2 px-3 py-2 text-sm whitespace-nowrap',
-              active ? 'border-primary text-foreground font-medium' : 'text-muted-foreground hover:text-foreground border-transparent',
-            )}
-          >
-            {link.label}
-          </Link>
-        )
-      })}
+    <nav aria-label="Dashboard" className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
+      <ul className="flex gap-1 md:flex-col">
+        {LINKS[role].map(({ href, label, icon: Icon }) => {
+          const active = href === '/dashboard' ? pathname === href : pathname.startsWith(href)
+          return (
+            <li key={href}>
+              <Link
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
+                  active
+                    ? 'bg-background text-foreground shadow-sm ring-1 ring-slate-900/5'
+                    : 'text-muted-foreground hover:bg-background/60 hover:text-foreground',
+                )}
+              >
+                <Icon className={cn('size-4', active && 'text-primary')} aria-hidden />
+                {label}
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
     </nav>
   )
 }

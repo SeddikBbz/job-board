@@ -25,7 +25,7 @@ export function CompanyLogo({ company, size = 48, className }: Props) {
         aria-hidden
         style={{ width: size, height: size }}
         className={cn(
-          'bg-muted text-muted-foreground flex shrink-0 items-center justify-center rounded-lg text-sm font-semibold',
+          'bg-muted text-muted-foreground flex shrink-0 items-center justify-center self-start rounded-lg text-sm font-semibold',
           className,
         )}
       >
@@ -40,7 +40,9 @@ export function CompanyLogo({ company, size = 48, className }: Props) {
       alt={logo?.alt || `${company.name} logo`}
       width={size}
       height={size}
-      className={cn('shrink-0 rounded-lg object-cover', className)}
+      // Fixed size + self-start: otherwise flex rows stretch the image to the card's height
+      style={{ width: size, height: size }}
+      className={cn('shrink-0 self-start rounded-lg object-cover', className)}
     />
   )
 }

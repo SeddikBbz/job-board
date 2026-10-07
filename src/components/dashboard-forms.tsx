@@ -107,7 +107,7 @@ export function CompanyForm({ defaults }: { defaults: CompanyDefaults }) {
   const v = { ...defaults, ...state.values }
   const e = state.fieldErrors ?? {}
   return (
-    <form action={action} className="max-w-2xl space-y-4" noValidate>
+    <form action={action} className="bg-card max-w-2xl space-y-4 rounded-xl border p-6 sm:p-8" noValidate>
       <FormMessage error={state.error} success={state.success} />
       <FormField label="Company name" name="name" required defaultValue={v.name} errors={e.name} />
       <div className="grid gap-4 sm:grid-cols-2">
@@ -158,7 +158,7 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
   const e = state.fieldErrors ?? {}
   const isNew = !defaults.id
   return (
-    <form action={action} className="max-w-3xl space-y-4" noValidate>
+    <form action={action} className="bg-card max-w-3xl space-y-4 rounded-xl border p-6 sm:p-8" noValidate>
       <FormMessage error={state.error} />
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
       <FormField label="Job title" name="title" required defaultValue={v.title} errors={e.title} />

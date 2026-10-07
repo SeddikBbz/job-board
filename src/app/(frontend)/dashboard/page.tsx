@@ -62,7 +62,7 @@ async function EmployerOverview({ user }: { user: Parameters<typeof getMyJobs>[0
   const [company, jobs] = await Promise.all([getMyCompany(user), getMyJobs(user)])
   if (!company) {
     return (
-      <div className="rounded-xl border border-dashed p-6">
+      <div className="bg-card rounded-xl border border-dashed p-6">
         <p className="font-semibold">Set up your company first</p>
         <p className="text-muted-foreground mt-1 text-sm">Candidates see your company on every job you post.</p>
         <Button className="mt-4" asChild>

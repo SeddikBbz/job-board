@@ -30,7 +30,9 @@ export async function login(page: Page, email: string) {
 }
 
 export async function logout(page: Page) {
-  await page.locator('header').getByRole('button', { name: 'Log out' }).click()
+  // "Log out" lives in the account menu (avatar button in the header)
+  await page.locator('header').getByRole('button', { name: /Account menu/ }).click()
+  await page.getByRole('menuitem', { name: 'Log out' }).click()
   await page.waitForURL((url) => url.pathname === '/')
   await expect(page.locator('header').getByRole('link', { name: 'Log in' })).toBeVisible()
 }

@@ -41,7 +41,7 @@ export default async function MyJobsPage() {
       ) : jobs.length === 0 ? (
         <EmptyState title="No jobs yet" description="Post your first job to start receiving applications." />
       ) : (
-        <div className="overflow-x-auto rounded-xl border">
+        <div className="bg-card overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-muted-foreground text-left">
               <tr>

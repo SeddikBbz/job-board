@@ -69,3 +69,26 @@ export const getCompanyJobs = async (companyId: number) => {
   })
   return docs
 }
+
+// Numbers for the home page hero (public read rules apply)
+export const getStats = async () => {
+  const payload = await getPayloadClient()
+  const [jobs, companies] = await Promise.all([
+    payload.count({ collection: 'jobs', ...publicRead }),
+    payload.count({ collection: 'companies', ...publicRead }),
+  ])
+  return { jobs: jobs.totalDocs, companies: companies.totalDocs }
+}
+
+export const getFeaturedCompanies = async (limit = 6) => {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'companies',
+    where: { logo: { exists: true } },
+    sort: '-updatedAt',
+    limit,
+    depth: 1,
+    ...publicRead,
+  })
+  return docs
+}
