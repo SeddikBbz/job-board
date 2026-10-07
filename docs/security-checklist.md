@@ -12,7 +12,7 @@ and Payload access control has the final say.
 | `logoutAction` | n/a | n/a | n/a | Payload `logout()` |
 | `forgotPasswordAction` | none (public) | Zod | rate limit (5/h per IP), same reply whether or not the email exists, Payload's per-user request interval | `forgotPassword`, `overrideAccess: false` |
 | `resetPasswordAction` | token | Zod (passwords match) | single-use, expiring token | `resetPassword`, `overrideAccess: false` |
-| `applyToJob` | logged in + `candidate` | Zod (PDF, ≤ 5 MB, cover letter ≤ 5000) | rate limit (20/h per user); job must be published and not expired; duplicate check + unique DB index | all calls as the user, `overrideAccess: false`. One exception: deleting the just-uploaded resume after a failed create uses `overrideAccess: true` (candidates can't delete resumes) |
+| `applyToJob` | logged in + `candidate` | Zod (PDF, ≤ 10 MB, cover letter ≤ 5000) | rate limit (20/h per user); job must be published and not expired; duplicate check + unique DB index | all calls as the user, `overrideAccess: false`. One exception: deleting the just-uploaded resume after a failed create uses `overrideAccess: true` (candidates can't delete resumes) |
 | `saveCompany` | logged in + `employer`/`admin` | Zod (URL, image ≤ 2 MB) | one company per employer (hook) | as the user |
 | `saveJob` | logged in + `employer`/`admin` | Zod (salary range, future expiry when publishing) | company ownership re-checked by the jobs hook | as the user |
 | `setJobStatus` | logged in + `employer`/`admin` | Zod | access: only jobs of the user's company | as the user |

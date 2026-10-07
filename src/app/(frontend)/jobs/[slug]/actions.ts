@@ -5,7 +5,7 @@ import { APIError } from 'payload'
 import { getCurrentUser } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
 import { rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
-import { applySchema } from '@/lib/validation/application'
+import { applySchema, MAX_RESUME_MB } from '@/lib/validation/application'
 import type { FormState } from '@/lib/validation/auth'
 
 const publicMessage = (error: unknown, fallback: string) =>
@@ -63,7 +63,7 @@ export async function applyToJob(_prev: FormState, formData: FormData): Promise<
     resumeId = resume.id
   } catch (error) {
     return {
-      error: publicMessage(error, 'Could not upload your resume. Make sure it is a valid PDF under 5 MB.'),
+      error: publicMessage(error, `Could not upload your resume. Make sure it is a valid PDF under ${MAX_RESUME_MB} MB.`),
       values: { coverLetter },
     }
   }

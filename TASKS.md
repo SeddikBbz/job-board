@@ -130,7 +130,7 @@ src/
 
 **media** (upload, public): company logos only.
 
-**resumes** (upload, **private**): PDF only, max 5 MB. Served through Payload so access control applies.
+**resumes** (upload, **private**): PDF only, max 10 MB. Served through Payload so access control applies.
 
 ### Access matrix
 
@@ -177,7 +177,7 @@ Field-level rules:
 ### M2. Media, resumes and storage
 
 - [x] Create `media` collection (images only, public read).
-- [x] Create `resumes` collection (PDF only, size limit 5 MB, private access as in the matrix).
+- [x] Create `resumes` collection (PDF only, size limit 10 MB (raised from 5 MB), private access as in the matrix).
 - [x] Install and configure the Vercel Blob storage adapter for both collections. Use local disk in development if no token is set.
 - [x] Configure `sharp` for image resizing.
 

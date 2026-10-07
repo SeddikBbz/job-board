@@ -9,7 +9,7 @@ import { FormMessage } from '@/components/form'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { formatDate } from '@/lib/format'
-import { MAX_RESUME_BYTES } from '@/lib/validation/application'
+import { MAX_RESUME_BYTES, MAX_RESUME_MB } from '@/lib/validation/application'
 import type { FormState } from '@/lib/validation/auth'
 
 type Status =
@@ -108,7 +108,7 @@ export function ApplySection({ jobId, jobSlug, jobTitle }: Props) {
         const file = (e.currentTarget.elements.namedItem('resume') as HTMLInputElement).files?.[0]
         if (file && file.size > MAX_RESUME_BYTES) {
           e.preventDefault()
-          setClientError('Resume must be 5 MB or smaller.')
+          setClientError(`Resume must be ${MAX_RESUME_MB} MB or smaller.`)
         }
       }}
     >
@@ -117,7 +117,7 @@ export function ApplySection({ jobId, jobSlug, jobTitle }: Props) {
       <input type="hidden" name="jobId" value={jobId} />
 
       <div className="space-y-2">
-        <Label htmlFor="resume">Resume (PDF, max 5 MB)</Label>
+        <Label htmlFor="resume">Resume (PDF, max {MAX_RESUME_MB} MB)</Label>
         <div className="flex items-center gap-2">
           <FileText className="text-muted-foreground size-5" aria-hidden />
           <input

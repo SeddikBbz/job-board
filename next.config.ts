@@ -35,8 +35,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      // Resumes can be up to 5 MB (default limit is 1 MB)
-      bodySizeLimit: '6mb',
+      // Resumes can be up to 10 MB (MAX_RESUME_MB) plus form overhead; the default limit is 1 MB
+      bodySizeLimit: '11mb',
     },
   },
   images: {

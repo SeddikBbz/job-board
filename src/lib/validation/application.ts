@@ -1,6 +1,8 @@
 import { z } from 'zod'
 
-export const MAX_RESUME_BYTES = 10 * 1024 * 1024
+// Single source of truth for the resume size limit (UI, validation and the Resumes collection)
+export const MAX_RESUME_MB = 10
+export const MAX_RESUME_BYTES = MAX_RESUME_MB * 1024 * 1024
 
 export const applySchema = z.object({
   jobId: z.coerce.number().int().positive(),
@@ -14,6 +16,6 @@ export const applySchema = z.object({
   resume: z
     .instanceof(File, { message: 'Attach your resume as a PDF.' })
     .refine((f) => f.size > 0, 'Attach your resume as a PDF.')
-    .refine((f) => f.size <= MAX_RESUME_BYTES, 'Resume must be 5 MB or smaller.')
+    .refine((f) => f.size <= MAX_RESUME_BYTES, `Resume must be ${MAX_RESUME_MB} MB or smaller.`)
     .refine((f) => f.type === 'application/pdf', 'Resume must be a PDF file.'),
 })
