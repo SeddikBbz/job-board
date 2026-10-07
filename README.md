@@ -84,3 +84,35 @@ They use the database in `DATABASE_URI`, so point it at a separate Neon branch f
 
 **CI** (`.github/workflows/ci.yml`) runs on every pull request and push to `main`: lint, typecheck and unit tests always;
 integration, e2e and build once the `DATABASE_URI` and `PAYLOAD_SECRET` repository secrets are set.
+
+## Database migrations
+
+- **Local development** uses Payload's schema *push*: changes to collections are applied to your dev database automatically when `pnpm dev` starts. Never run `pnpm payload migrate` against that database.
+- **Production and preview** use migrations in `src/migrations`. After changing collections, run `pnpm payload migrate:create <name>` and commit the new files.
+- `vercel.json` runs `pnpm payload migrate && pnpm build`, so every deployment applies pending migrations first.
+- If migrations fail through Neon's pooled connection, run them with the direct (non-pooled) connection string.
+
+## Deployment (Vercel + Neon)
+
+1. **Neon branches**: keep one branch per environment, each with its own connection string:
+   - `development`: your local `.env` (schema push).
+   - `ci`: GitHub secret `DATABASE_URI` for the CI workflow.
+   - `preview` (optional) and `production`: migration-managed, used by Vercel.
+2. **Vercel project**: import the GitHub repo (framework: Next.js; the build command comes from `vercel.json`).
+3. **Vercel Blob**: create a Blob store in the project; Vercel adds `BLOB_READ_WRITE_TOKEN`.
+4. **Environment variables** (Production, and Preview with its own database):
+
+   | Name | Value |
+   |---|---|
+   | `DATABASE_URI` | Neon pooled connection string for that environment |
+   | `PAYLOAD_SECRET` | a long random string (different per environment) |
+   | `NEXT_PUBLIC_SERVER_URL` | e.g. `https://jobs.example.com` |
+   | `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS` | from Resend, with a verified sender domain |
+   | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | from Cloudflare Turnstile (required in production) |
+   | `CRON_SECRET` | a long random string (Vercel Cron sends it to `/api/payload-jobs/run`) |
+   | `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN` | from Sentry (optional) |
+   | `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN` | to upload source maps (optional) |
+
+5. **First admin**: after the first deploy, open `/admin` and create the first user (it becomes the admin).
+6. **Firewall**: add Vercel Firewall rate-limit rules for `/login`, `/register` and `/jobs/*` (the in-app limiter is per instance).
+7. **Smoke test**: register, apply to a job, change the status as the employer, and check the email arrives.
