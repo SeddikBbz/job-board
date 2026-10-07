@@ -84,7 +84,7 @@ export async function forgotPasswordAction(_prev: FormState, formData: FormData)
 
   const payload = await getPayloadClient()
   try {
-    await payload.forgotPassword({ collection: 'users', data: parsed.data })
+    await payload.forgotPassword({ collection: 'users', data: parsed.data, overrideAccess: false })
   } catch (error) {
     payload.logger.error({ err: error, msg: 'forgotPassword failed' })
   }
