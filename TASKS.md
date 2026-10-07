@@ -254,7 +254,7 @@ Field-level rules:
 
 **Candidate** (`/dashboard/applications`)
 - [x] List own applications with job, company, date and status.
-- [ ] Withdraw option only if the plan allows it (optional, ask the owner first).
+- [x] Withdraw option (owner chose soft withdraw: status "withdrawn", allowed while applied/reviewing).
 
 **Employer** (`/dashboard/jobs`)
 - [x] Company profile edit page with logo upload.
