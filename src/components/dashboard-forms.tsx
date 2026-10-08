@@ -124,7 +124,7 @@ export function CompanyForm({ defaults }: { defaults: CompanyDefaults }) {
       <Textarea label="About the company" name="description" defaultValue={v.description} errors={e.description} />
       <div className="space-y-2">
         <Label htmlFor="logo">Logo (image, max 2 MB)</Label>
-        <input id="logo" name="logo" type="file" accept="image/*" className="text-sm file:bg-secondary file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1.5" />
+        <input id="logo" name="logo" type="file" accept="image/*" className="text-sm file:bg-secondary file:me-3 file:rounded-md file:border-0 file:px-3 file:py-1.5" />
         {e.logo && <p className="text-destructive text-sm">{e.logo[0]}</p>}
       </div>
       <Button type="submit" disabled={pending}>

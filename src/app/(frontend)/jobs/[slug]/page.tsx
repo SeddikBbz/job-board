@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { Container } from '@/components/container'
 import { ApplyNowButton } from '@/components/apply-now-button'
 import { ApplySection } from '@/components/apply-section'
 import { CompanyLogo } from '@/components/company-logo'
@@ -52,12 +53,12 @@ export default async function JobPage({ params }: Props) {
   ].filter((item) => item.value)
 
   return (
-    <div className="bg-surface">
+    <div className="bg-surface flex-1">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jobPostingJsonLd(job, siteUrl)) }} />
 
       {/* Header */}
       <div className="bg-background border-b">
-        <div className="container mx-auto max-w-6xl px-4 py-8">
+        <Container className="py-8">
           <nav aria-label="Breadcrumb" className="text-muted-foreground mb-6 flex items-center gap-1 text-sm">
             <Link href="/jobs" className="hover:text-foreground">
               Jobs
@@ -105,17 +106,17 @@ export default async function JobPage({ params }: Props) {
               <ApplyNowButton />
             </div>
           </div>
-        </div>
+        </Container>
       </div>
 
       {/* Body */}
-      <div className="container mx-auto grid max-w-6xl gap-8 px-4 py-8 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-8">
+      <Container className="grid gap-8 py-8 lg:grid-cols-[1fr_320px]">
+        <div className="min-w-0 space-y-8">
           <section aria-labelledby="about-role" className="bg-card rounded-xl border p-6 sm:p-8">
             <h2 id="about-role" className="text-lg font-semibold">
               About the role
             </h2>
-            <article className="mt-4 space-y-4 leading-7 text-slate-700 [&_a]:text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc">
+            <article className="mt-4 max-w-readable space-y-4 leading-7 text-foreground/80 [&_a]:text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_li]:ms-5 [&_ol]:list-decimal [&_ul]:list-disc">
               <RichText data={job.description} />
             </article>
             {job.skills?.length ? (
@@ -178,7 +179,7 @@ export default async function JobPage({ params }: Props) {
             </div>
           )}
         </aside>
-      </div>
+      </Container>
     </div>
   )
 }

@@ -9,14 +9,14 @@ const BENEFITS = [
 // Split screen for login, register and password pages: form on the left, brand panel on the right
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-[calc(100vh-4rem)] lg:grid-cols-2">
+    <div className="grid flex-1 lg:grid-cols-2">
       <div className="flex items-center justify-center px-4 py-12 sm:px-8">
         <div className="w-full max-w-md">{children}</div>
       </div>
 
       <div className="bg-primary text-primary-foreground relative hidden overflow-hidden lg:flex lg:items-center">
-        <div aria-hidden className="absolute -top-24 -right-24 size-96 rounded-full bg-white/10 blur-3xl" />
-        <div aria-hidden className="absolute -bottom-32 -left-16 size-96 rounded-full bg-white/5 blur-2xl" />
+        <div aria-hidden className="absolute -top-24 -end-24 size-96 rounded-full bg-white/10 blur-3xl" />
+        <div aria-hidden className="absolute -bottom-32 -start-16 size-96 rounded-full bg-white/5 blur-2xl" />
         <div className="relative mx-auto max-w-md px-10">
           <p className="text-sm font-semibold tracking-wide text-white/70 uppercase">JobBoard</p>
           <p className="mt-4 text-3xl leading-tight font-bold tracking-tight">

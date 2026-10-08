@@ -13,7 +13,7 @@ export function JobCard({ job }: { job: Job }) {
   const salary = formatSalary(job)
 
   return (
-    <article className="group bg-card hover:border-primary/40 relative flex gap-4 rounded-xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/5">
+    <article className="group bg-card hover:border-primary/40 relative flex h-full gap-4 rounded-xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-foreground/5">
       {company && <CompanyLogo company={company} size={52} />}
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">

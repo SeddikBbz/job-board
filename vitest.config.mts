@@ -1,3 +1,4 @@
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -12,6 +13,18 @@ export default defineConfig({
           name: 'unit',
           environment: 'node',
           include: ['tests/unit/**/*.test.ts'],
+        },
+      },
+      {
+        // React components rendered in a simulated browser (jsdom), no database
+        extends: true,
+        plugins: [react()],
+        test: {
+          name: 'component',
+          environment: 'jsdom',
+          include: ['tests/component/**/*.test.tsx'],
+          // The default "forks" pool timed out on Windows while loading jsdom; threads start faster
+          pool: 'threads',
         },
       },
       {

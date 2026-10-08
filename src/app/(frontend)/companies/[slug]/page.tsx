@@ -2,6 +2,7 @@ import { Briefcase, ExternalLink, MapPin, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { Container } from '@/components/container'
 import { CompanyLogo } from '@/components/company-logo'
 import { EmptyState } from '@/components/empty-state'
 import { JobCard } from '@/components/job-card'
@@ -32,11 +33,11 @@ export default async function CompanyPage({ params }: Props) {
   const jobs = await getCompanyJobs(company.id)
 
   return (
-    <div className="bg-surface min-h-[70vh]">
+    <div className="bg-surface flex-1">
       {/* Cover + identity */}
       <div className="bg-background border-b">
         <div aria-hidden className="from-primary/15 via-secondary to-background h-32 bg-gradient-to-r sm:h-40" />
-        <div className="container mx-auto max-w-6xl px-4 pb-8">
+        <Container className="pb-8">
           <div className="-mt-12 flex flex-col gap-5 sm:flex-row sm:items-end">
             <CompanyLogo company={company} size={96} className="bg-background rounded-2xl border-4 border-white shadow-md" />
             <div className="min-w-0 flex-1">
@@ -65,16 +66,20 @@ export default async function CompanyPage({ params }: Props) {
               </Button>
             )}
           </div>
-        </div>
+        </Container>
       </div>
 
-      <div className="container mx-auto grid max-w-6xl gap-8 px-4 py-8 lg:grid-cols-[1fr_320px]">
-        <section aria-labelledby="open-jobs" className="space-y-3">
+      <Container className="grid gap-8 py-8 lg:grid-cols-[1fr_320px]">
+        <section aria-labelledby="open-jobs" className="min-w-0 space-y-3">
           <h2 id="open-jobs" className="text-xl font-semibold">
             Open jobs ({jobs.length})
           </h2>
           {jobs.length ? (
-            jobs.map((job) => <JobCard key={job.id} job={job} />)
+            <div className="grid-cards gap-4">
+              {jobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
           ) : (
             <EmptyState title="No open jobs right now" description="Check back soon for new roles." />
           )}
@@ -88,7 +93,7 @@ export default async function CompanyPage({ params }: Props) {
             </p>
           </div>
         </aside>
-      </div>
+      </Container>
     </div>
   )
 }

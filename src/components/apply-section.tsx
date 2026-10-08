@@ -128,7 +128,7 @@ export function ApplySection({ jobId, jobSlug, jobTitle }: Props) {
             required
             aria-invalid={Boolean(clientError || state.fieldErrors?.resume) || undefined}
             aria-describedby={clientError || state.fieldErrors?.resume ? 'resume-error' : undefined}
-            className="file:bg-secondary file:text-secondary-foreground text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1.5 file:text-sm"
+            className="file:bg-secondary file:text-secondary-foreground text-sm file:me-3 file:rounded-md file:border-0 file:px-3 file:py-1.5 file:text-sm"
             onChange={() => setClientError(null)}
           />
         </div>

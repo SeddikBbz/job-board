@@ -28,7 +28,7 @@ export function MobileNav() {
           </SheetTitle>
         </SheetHeader>
         <nav aria-label="Mobile" className="flex flex-col gap-1 px-4">
-          {[...MAIN_NAV, { href: '/dashboard', label: 'Dashboard' }].map((link) => (
+          {[...MAIN_NAV, { href: '/dashboard', label: 'Dashboard' }, { href: '/login', label: 'Log in' }].map((link) => (
             <Link
               key={link.href}
               href={link.href}

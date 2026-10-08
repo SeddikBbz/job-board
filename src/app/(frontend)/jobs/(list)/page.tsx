@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
+import { Container } from '@/components/container'
 import { EmptyState } from '@/components/empty-state'
 import { JobCard } from '@/components/job-card'
 import { JobFilters } from '@/components/job-filters'
@@ -26,19 +27,19 @@ export default async function JobsPage({ searchParams }: Props) {
   const result = await getJobs(filters)
 
   return (
-    <div className="bg-surface min-h-[70vh]">
+    <div className="bg-surface flex-1">
       <div className="bg-background border-b">
-        <div className="container mx-auto max-w-6xl px-4 py-8">
+        <Container className="py-8">
           <h1 className="text-3xl font-bold tracking-tight">
             {filters.q ? `Jobs for “${filters.q}”` : 'Find your next job'}
           </h1>
           <p className="text-muted-foreground mt-1" aria-live="polite">
             {result.totalDocs} {result.totalDocs === 1 ? 'job' : 'jobs'} found
           </p>
-        </div>
+        </Container>
       </div>
 
-      <div className="container mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[280px_1fr]">
+      <Container className="grid gap-8 py-8 md:grid-cols-[280px_1fr]">
         {/* useSearchParams in a client component needs a Suspense boundary */}
         <div className="hidden md:block">
           <div className="bg-card sticky top-24 rounded-xl border p-5">
@@ -48,7 +49,7 @@ export default async function JobsPage({ searchParams }: Props) {
           </div>
         </div>
 
-        <section aria-label="Results" className="space-y-4">
+        <section aria-label="Results" className="min-w-0 space-y-4">
           <div className="flex items-center justify-between md:hidden">
             <Suspense>
               <MobileFilters />
@@ -56,7 +57,7 @@ export default async function JobsPage({ searchParams }: Props) {
           </div>
 
           {result.docs.length ? (
-            <div className="space-y-3">
+            <div className="grid-cards gap-4">
               {result.docs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
@@ -77,7 +78,7 @@ export default async function JobsPage({ searchParams }: Props) {
 
           <Pagination page={result.page ?? 1} totalPages={result.totalPages} searchParams={params} />
         </section>
-      </div>
+      </Container>
     </div>
   )
 }

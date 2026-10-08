@@ -43,7 +43,7 @@ export default async function MyJobsPage() {
       ) : (
         <div className="bg-card overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-muted-foreground text-left">
+            <thead className="bg-muted/50 text-muted-foreground text-start">
               <tr>
                 <th scope="col" className="px-4 py-3 font-medium">Job</th>
                 <th scope="col" className="px-4 py-3 font-medium">Status</th>

@@ -80,6 +80,16 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* Layout tokens: side padding of every page container, and the narrowest a card may get */
+    --gutter: clamp(1rem, 3vw, 4rem);
+    --card-min: 20rem;
+}
+
+/* Layout tokens that become Tailwind utilities */
+@theme {
+    /* max-w-readable: comfortable line length for long text */
+    --container-readable: 70ch;
 }
 
 .dark {
@@ -126,6 +136,11 @@
   html {
     @apply font-sans;
     }
+  /* Safety net against sideways scrolling. clip (not hidden) keeps the sticky header working. */
+  html,
+  body {
+    overflow-x: clip;
+  }
 }
 /* Accessibility: always show where keyboard focus is (components without their own ring) */
 @layer base {
@@ -133,6 +148,13 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+}
+
+/* Card grid that adds columns as the screen grows: 1 on a phone, 4+ on a large monitor.
+   min(..., 100%) keeps a single card from overflowing screens narrower than --card-min. */
+@utility grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--card-min), 100%), 1fr));
 }
 
 /* Light grey app background used behind cards (jobs list, dashboard) */

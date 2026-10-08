@@ -34,7 +34,7 @@ export function LoginForm({ siteKey, next }: { siteKey: string; next?: string })
       <input type="hidden" name="next" value={next ?? ''} />
       <FormField label="Email" name="email" type="email" autoComplete="email" required defaultValue={state.values?.email} errors={state.fieldErrors?.email} />
       <FormField label="Password" name="password" type="password" autoComplete="current-password" required errors={state.fieldErrors?.password} />
-      <div className="text-right text-sm">
+      <div className="text-end text-sm">
         <Link href="/forgot-password" className="text-primary hover:underline">
           Forgot your password?
         </Link>

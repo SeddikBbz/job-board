@@ -44,13 +44,14 @@ export function UserNav() {
     }
   }, [pathname])
 
-  // Keep the space while loading to avoid layout shift
-  if (user === undefined) return <div className="h-9 w-44" aria-hidden />
+  // Keep the space while loading to avoid layout shift (same width as the buttons below)
+  if (user === undefined) return <div className="h-9 w-20 sm:w-40" aria-hidden />
 
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" asChild>
+        {/* On the smallest phones "Log in" lives in the slide-in menu, so the header never overflows */}
+        <Button variant="ghost" className="hidden sm:inline-flex" asChild>
           <Link href="/login">Log in</Link>
         </Button>
         <Button asChild>
@@ -71,7 +72,7 @@ export function UserNav() {
       )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-10 gap-2 rounded-full pr-3 pl-1" aria-label={`Account menu for ${user.name}`}>
+          <Button variant="ghost" className="h-10 gap-2 rounded-full ps-1 pe-3" aria-label={`Account menu for ${user.name}`}>
             <Avatar className="size-8">
               <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-semibold">
                 {initials(user.name)}

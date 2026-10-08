@@ -1,9 +1,12 @@
 'use client'
 
-import { Briefcase, Building2, FileText, LayoutDashboard, Search, Shield } from 'lucide-react'
+import { Briefcase, Building2, FileText, LayoutDashboard, Menu, Search, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 
 const LINKS = {
@@ -23,23 +26,29 @@ const LINKS = {
   ],
 } as const
 
-// Vertical sidebar on desktop, horizontal scrollable tabs on mobile
-export function DashboardNav({ role }: { role: keyof typeof LINKS }) {
+type Role = keyof typeof LINKS
+
+const isActive = (href: string, pathname: string) =>
+  href === '/dashboard' ? pathname === href : pathname.startsWith(href)
+
+// Vertical list of dashboard links, used by the desktop sidebar and the mobile drawer
+export function DashboardNav({ role, onNavigate }: { role: Role; onNavigate?: () => void }) {
   const pathname = usePathname()
   return (
-    <nav aria-label="Dashboard" className="-mx-4 overflow-x-auto px-4 md:mx-0 md:px-0">
-      <ul className="flex gap-1 md:flex-col">
+    <nav aria-label="Dashboard">
+      <ul className="flex flex-col gap-1">
         {LINKS[role].map(({ href, label, icon: Icon }) => {
-          const active = href === '/dashboard' ? pathname === href : pathname.startsWith(href)
+          const active = isActive(href, pathname)
           return (
             <li key={href}>
               <Link
                 href={href}
+                onClick={onNavigate}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors',
                   active
-                    ? 'bg-background text-foreground shadow-sm ring-1 ring-slate-900/5'
+                    ? 'bg-background text-foreground ring-foreground/5 shadow-sm ring-1'
                     : 'text-muted-foreground hover:bg-background/60 hover:text-foreground',
                 )}
               >
@@ -51,5 +60,30 @@ export function DashboardNav({ role }: { role: keyof typeof LINKS }) {
         })}
       </ul>
     </nav>
+  )
+}
+
+// Small screens: the sidebar collapses into a slide-in drawer. The button shows the current section.
+export function DashboardMobileNav({ role }: { role: Role }) {
+  const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+  const current = LINKS[role].find(({ href }) => isActive(href, pathname))
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="w-full justify-start md:hidden" aria-label="Open dashboard menu">
+          <Menu aria-hidden />
+          {current?.label ?? 'Dashboard'}
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="bg-surface w-72">
+        <SheetHeader>
+          <SheetTitle>Dashboard</SheetTitle>
+        </SheetHeader>
+        <div className="px-4">
+          <DashboardNav role={role} onNavigate={() => setOpen(false)} />
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }

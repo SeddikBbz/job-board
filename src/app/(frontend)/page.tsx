@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+import { Container } from '@/components/container'
 import { CompanyLogo } from '@/components/company-logo'
 import { EmptyState } from '@/components/empty-state'
 import { JobCard } from '@/components/job-card'
@@ -47,9 +48,9 @@ export default async function HomePage() {
         />
         <div
           aria-hidden
-          className="bg-primary/10 absolute -top-24 right-[-10%] -z-10 size-[28rem] rounded-full blur-3xl"
+          className="bg-primary/10 absolute -top-24 end-[-10%] -z-10 size-[28rem] rounded-full blur-3xl"
         />
-        <div className="container mx-auto max-w-6xl px-4 pt-16 pb-14 sm:pt-24 sm:pb-20">
+        <Container className="pt-16 pb-14 sm:pt-24 sm:pb-20">
           <p className="bg-background text-primary inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium shadow-sm">
             <span className="bg-primary size-1.5 rounded-full" aria-hidden />
             {stats.jobs} open {stats.jobs === 1 ? 'role' : 'roles'} right now
@@ -86,13 +87,13 @@ export default async function HomePage() {
               <dd className="text-3xl font-bold tracking-tight">{stats.companies}</dd>
             </div>
           </dl>
-        </div>
+        </Container>
       </section>
 
       {/* Companies */}
       {companies.length > 0 && (
         <section aria-labelledby="companies" className="border-b">
-          <div className="container mx-auto max-w-6xl px-4 py-10">
+          <Container className="py-10">
             <h2 id="companies" className="text-muted-foreground text-center text-sm font-medium">
               Companies hiring on JobBoard
             </h2>
@@ -109,19 +110,19 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Container>
         </section>
       )}
 
       {/* Categories */}
-      <section aria-labelledby="categories" className="container mx-auto max-w-6xl px-4 py-16">
+      <Container as="section" aria-labelledby="categories" className="py-16">
         <div className="max-w-2xl">
           <h2 id="categories" className="text-2xl font-bold tracking-tight sm:text-3xl">
             Explore by category
           </h2>
           <p className="text-muted-foreground mt-2">Jump straight to the kind of work you&apos;re looking for.</p>
         </div>
-        <ul className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <ul className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(min(14rem,100%),1fr))] gap-3">
           {CATEGORIES.map(({ label, href, icon: Icon }) => (
             <li key={href}>
               <Link
@@ -136,11 +137,11 @@ export default async function HomePage() {
             </li>
           ))}
         </ul>
-      </section>
+      </Container>
 
       {/* Latest jobs */}
       <section aria-labelledby="latest" className="bg-surface border-y">
-        <div className="container mx-auto max-w-6xl px-4 py-16">
+        <Container className="py-16">
           <div className="flex items-end justify-between gap-4">
             <div>
               <h2 id="latest" className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -155,7 +156,7 @@ export default async function HomePage() {
             </Button>
           </div>
           {jobs.length ? (
-            <div className="mt-8 grid gap-3 md:grid-cols-2">
+            <div className="grid-cards mt-8 gap-4">
               {jobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
@@ -168,13 +169,13 @@ export default async function HomePage() {
           <Button variant="outline" className="mt-6 w-full sm:hidden" asChild>
             <Link href="/jobs">View all jobs</Link>
           </Button>
-        </div>
+        </Container>
       </section>
 
       {/* Employer CTA */}
-      <section className="container mx-auto max-w-6xl px-4 py-16">
+      <Container as="section" className="py-16">
         <div className="bg-primary text-primary-foreground relative overflow-hidden rounded-3xl px-6 py-12 sm:px-12">
-          <div aria-hidden className="absolute -right-16 -bottom-24 size-72 rounded-full bg-white/10 blur-2xl" />
+          <div aria-hidden className="absolute -end-16 -bottom-24 size-72 rounded-full bg-white/10 blur-2xl" />
           <div className="relative max-w-xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Hiring? Meet your next teammate here.</h2>
             <p className="text-primary-foreground/80 mt-3 leading-7">
@@ -197,7 +198,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </Container>
     </>
   )
 }

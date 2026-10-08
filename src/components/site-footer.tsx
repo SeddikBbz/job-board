@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { Container } from '@/components/container'
 import { Logo } from '@/components/logo'
 
 const COLUMNS = [
@@ -33,7 +34,7 @@ const COLUMNS = [
 export function SiteFooter() {
   return (
     <footer className="bg-surface border-t">
-      <div className="container mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
+      <Container className="grid gap-10 py-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
         <div className="space-y-3">
           <Logo />
           <p className="text-muted-foreground max-w-xs text-sm leading-6">
@@ -54,11 +55,11 @@ export function SiteFooter() {
             </ul>
           </nav>
         ))}
-      </div>
+      </Container>
       <div className="border-t">
-        <p className="text-muted-foreground container mx-auto max-w-6xl px-4 py-6 text-xs">
-          © {new Date().getFullYear()} JobBoard. All rights reserved.
-        </p>
+        <Container className="text-muted-foreground py-6 text-xs">
+          <p>© {new Date().getFullYear()} JobBoard. All rights reserved.</p>
+        </Container>
       </div>
     </footer>
   )

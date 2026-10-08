@@ -62,7 +62,7 @@ export function Turnstile({ siteKey, resetKey }: Props) {
         strategy="afterInteractive"
         onReady={render}
       />
-      <div ref={container} className="min-h-[65px]" />
+      <div ref={container} data-testid="turnstile" className="min-h-[65px]" />
       <input type="hidden" name="turnstileToken" value={token} />
     </>
   )

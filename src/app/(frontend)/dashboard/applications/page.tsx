@@ -32,7 +32,7 @@ export default async function MyApplicationsPage() {
       ) : (
         <div className="bg-card overflow-x-auto rounded-xl border">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-muted-foreground text-left">
+            <thead className="bg-muted/50 text-muted-foreground text-start">
               <tr>
                 <th scope="col" className="px-4 py-3 font-medium">Job</th>
                 <th scope="col" className="px-4 py-3 font-medium">Company</th>
@@ -64,7 +64,7 @@ export default async function MyApplicationsPage() {
                     <td className="px-4 py-3">
                       <StatusBadge status={application.status} />
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-end">
                       {WITHDRAWABLE_STATUSES.includes(application.status) && (
                         <WithdrawButton applicationId={application.id} jobTitle={job?.title ?? 'this job'} />
                       )}
