@@ -100,7 +100,7 @@ for (const width of WIDTHS) {
     test('footer sits at the bottom of a short page', async ({ browser }) => {
       const context = await browser.newContext({ viewport: { width, height: HEIGHT } })
       const page = await context.newPage()
-      await page.goto('/this-page-does-not-exist')
+      await page.goto('/jobs/this-job-does-not-exist')
       await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
       const footerBottom = await page
         .getByRole('contentinfo')
@@ -140,7 +140,7 @@ test.describe('screenshots', () => {
       const context = await browser.newContext({ viewport: { width, height: HEIGHT } })
       const page = await context.newPage()
 
-      await page.goto('/this-page-does-not-exist')
+      await page.goto('/jobs/this-job-does-not-exist')
       await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
       await expect(page).toHaveScreenshot(`not-found-${width}.png`, { fullPage: true, animations: 'disabled' })
 

@@ -7,24 +7,28 @@ export const uniqueEmail = (prefix: string) => `${prefix}-${Date.now()}-${Math.f
 
 // Turnstile (test keys in development) fills a hidden token; wait for it before submitting
 export const waitForHumanCheck = (page: Page) =>
-  page.waitForFunction(() => (document.querySelector('input[name="turnstileToken"]') as HTMLInputElement | null)?.value)
+  page.waitForFunction(() => (document.querySelector('input[name="turnstileToken"]') as HTMLInputElement | null)?.value, null, { timeout: 60_000 })
 
 export async function register(page: Page, user: { name: string; email: string; role: 'candidate' | 'employer' }) {
   await page.goto('/register')
-  await page.getByLabel(user.role === 'employer' ? 'Hire people' : 'Find a job').check()
+  // The token appears only after React has loaded the form. Typing earlier can be undone by
+  // hydration (a fresh dev server is slow), e.g. the role silently resets to "Find a job".
+  await waitForHumanCheck(page)
+  const role = page.getByLabel(user.role === 'employer' ? 'Hire people' : 'Find a job')
+  await role.check()
+  await expect(role).toBeChecked()
   await page.getByLabel('Full name').fill(user.name)
   await page.getByLabel('Email').fill(user.email)
   await page.getByLabel('Password').fill(PASSWORD)
-  await waitForHumanCheck(page)
   await page.getByRole('button', { name: 'Create account' }).click()
   await page.waitForURL('**/dashboard')
 }
 
 export async function login(page: Page, email: string) {
   await page.goto('/login')
+  await waitForHumanCheck(page)
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Password').fill(PASSWORD)
-  await waitForHumanCheck(page)
   await page.getByRole('button', { name: 'Log in' }).click()
   await page.waitForURL('**/dashboard')
 }
