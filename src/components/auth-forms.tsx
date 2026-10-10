@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 
 import {
   forgotPasswordAction,
@@ -10,16 +10,25 @@ import {
   registerAction,
   resetPasswordAction,
 } from '@/app/(frontend)/(auth)/actions'
+import { useAuthRole, type AuthRole } from '@/components/auth/auth-role'
 import { FormField, FormMessage } from '@/components/form'
+import { PasswordField } from '@/components/password-field'
 import { Turnstile } from '@/components/turnstile'
 import { Button } from '@/components/ui/button'
-import type { FormState } from '@/lib/validation/auth'
+import { useFormFeedback } from '@/components/use-form-feedback'
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+  type FormState,
+} from '@/lib/validation/auth'
 
 const initialState: FormState = {}
 
 function SubmitButton({ pending, children }: { pending: boolean; children: React.ReactNode }) {
   return (
-    <Button type="submit" className="w-full" size="lg" disabled={pending}>
+    <Button type="submit" className="w-full" size="lg" disabled={pending} aria-busy={pending}>
       {pending && <Loader2 className="animate-spin" aria-hidden />}
       {children}
     </Button>
@@ -28,16 +37,19 @@ function SubmitButton({ pending, children }: { pending: boolean; children: React
 
 export function LoginForm({ siteKey, next }: { siteKey: string; next?: string }) {
   const [state, action, pending] = useActionState(loginAction, initialState)
+  const { formProps, errorsFor } = useFormFeedback(loginSchema.shape, state)
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form action={action} className="space-y-4" noValidate {...formProps}>
       <FormMessage error={state.error} />
       <input type="hidden" name="next" value={next ?? ''} />
-      <FormField label="Email" name="email" type="email" autoComplete="email" required defaultValue={state.values?.email} errors={state.fieldErrors?.email} />
-      <FormField label="Password" name="password" type="password" autoComplete="current-password" required errors={state.fieldErrors?.password} />
-      <div className="text-end text-sm">
-        <Link href="/forgot-password" className="text-primary hover:underline">
-          Forgot your password?
-        </Link>
+      <FormField label="Email" name="email" type="email" autoComplete="email" required defaultValue={state.values?.email} errors={errorsFor('email')} />
+      <div className="space-y-2">
+        <PasswordField label="Password" name="password" autoComplete="current-password" required errors={errorsFor('password')} />
+        <div className="text-end text-sm">
+          <Link href="/forgot-password" className="text-primary hover:underline">
+            Forgot your password?
+          </Link>
+        </div>
       </div>
       <Turnstile siteKey={siteKey} resetKey={state} />
       <SubmitButton pending={pending}>Log in</SubmitButton>
@@ -45,33 +57,81 @@ export function LoginForm({ siteKey, next }: { siteKey: string; next?: string })
   )
 }
 
-export function RegisterForm({ siteKey }: { siteKey: string }) {
+const ROLES: { value: AuthRole; label: string }[] = [
+  { value: 'candidate', label: 'Candidate' },
+  { value: 'employer', label: 'Employer' },
+]
+
+export function RegisterForm({ siteKey, next, initialRole = 'candidate' }: { siteKey: string; next?: string; initialRole?: AuthRole }) {
   const [state, action, pending] = useActionState(registerAction, initialState)
-  const role = state.values?.role || 'candidate'
+  const { formProps, errorsFor } = useFormFeedback(registerSchema.shape, state)
+  const { role, setRole } = useAuthRole()
+  // The panel follows this form: start from the URL (?role=employer) or the last submitted value
+  const startRole = (state.values?.role as AuthRole) || initialRole
+  useEffect(() => setRole(startRole), [startRole, setRole])
+  const termsErrors = errorsFor('terms')
+
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form action={action} className="space-y-4" noValidate {...formProps}>
       <FormMessage error={state.error} />
-      <fieldset className="space-y-2">
-        <legend className="mb-2 text-sm font-medium">I want to</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { value: 'candidate', label: 'Find a job' },
-            { value: 'employer', label: 'Hire people' },
-          ].map((option) => (
+      <input type="hidden" name="next" value={next ?? ''} />
+
+      {/* Segmented control: two radio buttons, so it works with the keyboard (arrow keys) */}
+      <fieldset>
+        <legend className="mb-2 text-sm font-medium">I am a</legend>
+        <div className="bg-muted grid grid-cols-2 gap-1 rounded-lg p-1">
+          {ROLES.map((option) => (
             <label
               key={option.value}
-              className="has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:ring-ring flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm has-[:focus-visible]:ring-2"
+              className="text-muted-foreground has-[:checked]:bg-background has-[:checked]:text-foreground has-[:focus-visible]:ring-ring flex cursor-pointer items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors has-[:checked]:shadow-sm has-[:focus-visible]:ring-2"
             >
-              <input type="radio" name="role" value={option.value} defaultChecked={role === option.value} className="accent-primary" />
+              <input
+                type="radio"
+                name="role"
+                value={option.value}
+                checked={role === option.value}
+                onChange={() => setRole(option.value)}
+                className="sr-only"
+              />
               {option.label}
             </label>
           ))}
         </div>
-        {state.fieldErrors?.role && <p className="text-destructive text-sm">{state.fieldErrors.role[0]}</p>}
       </fieldset>
-      <FormField label="Full name" name="name" autoComplete="name" required defaultValue={state.values?.name} errors={state.fieldErrors?.name} />
-      <FormField label="Email" name="email" type="email" autoComplete="email" required defaultValue={state.values?.email} errors={state.fieldErrors?.email} />
-      <FormField label="Password" name="password" type="password" autoComplete="new-password" required hint="At least 8 characters." errors={state.fieldErrors?.password} />
+
+      <FormField label="Full name" name="name" autoComplete="name" required defaultValue={state.values?.name} errors={errorsFor('name')} />
+      <FormField label="Email" name="email" type="email" autoComplete="email" required defaultValue={state.values?.email} errors={errorsFor('email')} />
+      <PasswordField label="Password" name="password" autoComplete="new-password" required showRules errors={errorsFor('password')} />
+
+      <div className="space-y-1">
+        <label className="flex items-start gap-2.5 text-sm">
+          <input
+            type="checkbox"
+            name="terms"
+            required
+            className="accent-primary mt-0.5 size-4 shrink-0"
+            aria-invalid={Boolean(termsErrors) || undefined}
+            aria-describedby={termsErrors ? 'terms-error' : undefined}
+          />
+          <span className="text-muted-foreground">
+            I agree to the{' '}
+            <Link href="/terms" target="_blank" className="text-primary hover:underline">
+              terms
+            </Link>{' '}
+            and the{' '}
+            <Link href="/privacy" target="_blank" className="text-primary hover:underline">
+              privacy policy
+            </Link>
+            .
+          </span>
+        </label>
+        {termsErrors && (
+          <p id="terms-error" className="text-destructive text-sm">
+            {termsErrors[0]}
+          </p>
+        )}
+      </div>
+
       <Turnstile siteKey={siteKey} resetKey={state} />
       <SubmitButton pending={pending}>Create account</SubmitButton>
     </form>
@@ -80,11 +140,12 @@ export function RegisterForm({ siteKey }: { siteKey: string }) {
 
 export function ForgotPasswordForm() {
   const [state, action, pending] = useActionState(forgotPasswordAction, initialState)
+  const { formProps, errorsFor } = useFormFeedback(forgotPasswordSchema.shape, state)
   if (state.success) return <FormMessage success={state.success} />
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form action={action} className="space-y-4" noValidate {...formProps}>
       <FormMessage error={state.error} />
-      <FormField label="Email" name="email" type="email" autoComplete="email" required errors={state.fieldErrors?.email} />
+      <FormField label="Email" name="email" type="email" autoComplete="email" required errors={errorsFor('email')} />
       <SubmitButton pending={pending}>Send reset link</SubmitButton>
     </form>
   )
@@ -92,12 +153,13 @@ export function ForgotPasswordForm() {
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState(resetPasswordAction, initialState)
+  const { formProps, errorsFor } = useFormFeedback(resetPasswordSchema.shape, state)
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form action={action} className="space-y-4" noValidate {...formProps}>
       <FormMessage error={state.error ?? state.fieldErrors?.token?.[0]} />
       <input type="hidden" name="token" value={token} />
-      <FormField label="New password" name="password" type="password" autoComplete="new-password" required hint="At least 8 characters." errors={state.fieldErrors?.password} />
-      <FormField label="Confirm new password" name="confirmPassword" type="password" autoComplete="new-password" required errors={state.fieldErrors?.confirmPassword} />
+      <PasswordField label="New password" name="password" autoComplete="new-password" required showRules errors={errorsFor('password')} />
+      <PasswordField label="Confirm new password" name="confirmPassword" autoComplete="new-password" required errors={errorsFor('confirmPassword')} />
       <SubmitButton pending={pending}>Save new password</SubmitButton>
     </form>
   )

@@ -11,7 +11,7 @@ describe('safeRedirectPath', () => {
     expect(safeRedirectPath('/jobs/abc?x=1')).toBe('/jobs/abc?x=1')
   })
 
-  it.each(['//evil.example', '/\\evil.example', 'https://evil.example', 'javascript:alert(1)', '', null, 42])(
+  it.each(['//evil.example', '/\\evil.example', '/\t/evil.example', '/\n/evil.example', 'https://evil.example', 'javascript:alert(1)', '', null, 42])(
     'rejects %s',
     (value) => {
       expect(safeRedirectPath(value)).toBe('/dashboard')

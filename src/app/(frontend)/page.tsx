@@ -183,7 +183,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button size="lg" variant="secondary" asChild>
-                <Link href="/register">Start hiring for free</Link>
+                <Link href="/register?role=employer">Start hiring for free</Link>
               </Button>
               <Button
                 size="lg"

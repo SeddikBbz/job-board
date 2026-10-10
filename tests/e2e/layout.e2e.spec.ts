@@ -136,7 +136,7 @@ test.describe('screenshots', () => {
   test.skip(!!process.env.CI, 'Baselines are per operating system')
 
   for (const width of WIDTHS) {
-    test(`404 and login at ${width}px`, async ({ browser }) => {
+    test(`404, login and register at ${width}px`, async ({ browser }) => {
       const context = await browser.newContext({ viewport: { width, height: HEIGHT } })
       const page = await context.newPage()
 
@@ -150,6 +150,16 @@ test.describe('screenshots', () => {
         fullPage: true,
         animations: 'disabled',
         // The human check widget comes from Cloudflare and changes between runs
+        mask: [page.getByTestId('turnstile')],
+      })
+
+      // The brand panel shows from lg (1024 px); smaller screens get a slim strip instead
+      await page.goto('/register')
+      await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible()
+      await expect(page.getByTestId('auth-panel')).toBeVisible({ visible: width >= 1024 })
+      await expect(page).toHaveScreenshot(`register-${width}.png`, {
+        fullPage: true,
+        animations: 'disabled',
         mask: [page.getByTestId('turnstile')],
       })
       await context.close()

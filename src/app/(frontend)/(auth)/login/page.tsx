@@ -22,7 +22,7 @@ export default async function LoginPage({ searchParams }: Props) {
       <LoginForm siteKey={getTurnstileSiteKey()} next={target} />
       <p className="text-muted-foreground mt-6 text-center text-sm">
         New here?{' '}
-        <Link href="/register" className="text-primary font-medium hover:underline">
+        <Link href={next ? `/register?next=${encodeURIComponent(target)}` : '/register'} className="text-primary font-medium hover:underline">
           Create an account
         </Link>
       </p>

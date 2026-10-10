@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
 import { buildJobsWhere, PAGE_SIZE, sortForPayload, type JobFilters } from './jobFilters'
@@ -79,6 +80,17 @@ export const getStats = async () => {
   ])
   return { jobs: jobs.totalDocs, companies: companies.totalDocs }
 }
+
+// Open jobs count for the auth pages. Cached for 10 minutes: an exact live number isn't needed there.
+export const getOpenJobsCount = unstable_cache(
+  async () => {
+    const payload = await getPayloadClient()
+    const { totalDocs } = await payload.count({ collection: 'jobs', ...publicRead })
+    return totalDocs
+  },
+  ['open-jobs-count'],
+  { revalidate: 600 },
+)
 
 export const getFeaturedCompanies = async (limit = 6) => {
   const payload = await getPayloadClient()

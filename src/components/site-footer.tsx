@@ -16,7 +16,7 @@ const COLUMNS = [
   {
     title: 'For employers',
     links: [
-      { href: '/register', label: 'Start hiring' },
+      { href: '/register?role=employer', label: 'Start hiring' },
       { href: '/dashboard/jobs/new', label: 'Post a job' },
       { href: '/dashboard/company', label: 'Company profile' },
     ],

@@ -16,6 +16,7 @@ Keep `FEATURES.md` in the same folder. Class numbers 1-9 are unchanged, so nothi
 | 1 | **1** Layout and design foundation | P0 | S-M | none | Yours |
 | 2 | **2** Media upload and auto-resize | P0 | M | 1 | Yours |
 | 3 | **3** Sign in and sign up redesign | P0 | M | 1 | Yours |
+| 3b | **17** Installable mobile web app (PWA) | P0 | S | 1, 3 | Yours |
 | 4 | **4** Skills and cities taxonomy | P0 | M | none | Yours |
 | 5 | **5** Live search and suggestions | P0 | L | 4 | Yours |
 | 6 | **10** Trust, safety and legal | P0 | L | 3 | Mine |
@@ -77,6 +78,44 @@ When the agent builds a class, it must also adjust earlier classes where listed.
 | 7 | **Company permission helper:** all access rules call `canManageCompany(user, companyId)` instead of comparing `company.owner` directly. Today it only checks the owner; Class 14 extends it to team members without rewriting every rule. | Classes 3-8 access functions |
 | 8 | **Add `experienceLevel` and `contentLanguage` fields to jobs** (needed by filters, SEO and Class 15). | Class 4 migration |
 | 9 | **Background jobs:** all emails and scheduled work go through the Payload jobs queue (see Class 16). | Classes 8, 10, 12, 13 |
+
+---
+
+## CLASS 17. Installable mobile web app (PWA) (P0, S)
+
+**Goal:** on a phone, users can add the platform to the home screen and open it like an app (own icon, fullscreen, no browser bar), without an app store.
+
+**Depends on:** Class 1 (layout) and Class 3 (auth pages look right on phones).
+
+### 17.1 Installability
+
+- [ ] `src/app/manifest.ts` (Next.js built-in, verify the current docs): `name`, `short_name`, `description`, `start_url: '/'`, `display: 'standalone'`, `theme_color` and `background_color` from the theme tokens, `orientation: 'portrait'`, `lang`, `dir`.
+- [ ] App icons: 192 and 512 px PNG, plus a **maskable** 512 px icon (safe zone), `apple-touch-icon` 180 px, and favicon. Generated once from the logo with `sharp` (script), committed to `public/icons/`.
+- [ ] `viewport` export: `themeColor`, and `viewport-fit=cover` with safe-area padding (`env(safe-area-inset-*)`) on the sticky header and bottom elements so notches don't hide content.
+- [ ] iOS meta: `appleWebApp` metadata (`capable`, `title`, `statusBarStyle`).
+
+### 17.2 Service worker and offline
+
+- [ ] A small hand-written service worker in `public/sw.js` (no library), registered from a client component in production only.
+- [ ] Cache strategy: static assets (`/_next/static/*`, icons, fonts) cache-first; pages network-first. **Never cache** `/api/*`, `/admin`, `/dashboard`, auth pages, resumes or anything per-user.
+- [ ] Offline fallback page `/offline` ("You're offline, check your connection") shown when a page can't load.
+- [ ] Versioned cache name; old caches deleted on `activate`. Update flow: when a new version is waiting, show a small "New version available, reload" toast.
+- [ ] Security headers: serve `sw.js` with `Cache-Control: no-cache` and `Service-Worker-Allowed: /`; check the CSP allows the worker (`worker-src 'self'`).
+
+### 17.3 Install experience
+
+- [ ] "Install app" button in the mobile menu and the footer, shown only when the browser fires `beforeinstallprompt` (Android/Chrome) and hidden once installed (`display-mode: standalone`).
+- [ ] iOS (no install prompt): a short hint in the mobile menu, "Tap Share, then Add to Home Screen", shown only on iOS Safari and dismissible (remembered on the device).
+- [ ] Standalone mode polish: no layout jump under the status bar, back navigation works, external links open in the browser.
+
+### 17.4 Tests
+
+- [ ] **Unit:** cache routing rules (which URLs are cached, which are never cached, especially `/api`, `/dashboard`, `/admin`).
+- [ ] **E2E:** `/manifest.webmanifest` returns valid JSON with the required fields and icons that load; the service worker registers in a production build; going offline on a visited page shows the cached page, and an unvisited page shows `/offline`; logged-in pages are never served from the cache after logout.
+- [ ] **Manual (recorded):** Lighthouse "Installable" passes; install on a real Android phone and an iPhone, open from the home screen, log in, apply to a job.
+
+**Test gate:** full gate command, plus the manual install check.
+**Done when:** the site installs on Android and iOS, opens fullscreen with its own icon, shows a friendly offline page, and never caches private data.
 
 ---
 

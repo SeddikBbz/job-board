@@ -1,40 +1,31 @@
-import { CheckCircle2 } from 'lucide-react'
+import { AuthPanel } from '@/components/auth/auth-panel'
+import { AuthRoleProvider } from '@/components/auth/auth-role'
+import { getOpenJobsCount } from '@/lib/queries'
 
-const BENEFITS = [
-  'Apply to any job in two minutes with one resume',
-  'Track every application and its status in one place',
-  'Employers: post jobs and review applicants for free',
-]
-
-// Split screen for login, register and password pages: form on the left, brand panel on the right
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+// Shared shell for login, register, forgot and reset password:
+// form on the left (about 420 px wide), brand panel on the right from the lg breakpoint.
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const openJobs = await getOpenJobsCount()
   return (
-    <div className="grid flex-1 lg:grid-cols-2">
-      <div className="flex items-center justify-center px-4 py-12 sm:px-8">
-        <div className="w-full max-w-md">{children}</div>
-      </div>
+    <AuthRoleProvider>
+      <div className="grid flex-1 lg:grid-cols-2">
+        <div className="flex flex-col">
+          {/* Small screens: a slim brand strip instead of the panel */}
+          <div className="bg-primary text-primary-foreground px-(--gutter) py-3 text-center text-sm font-medium lg:hidden">
+            Your next career move starts here
+          </div>
+          <div className="flex flex-1 items-center justify-center px-(--gutter) py-10 sm:py-14">
+            <div className="w-full max-w-[420px]">{children}</div>
+          </div>
+        </div>
 
-      <div className="bg-primary text-primary-foreground relative hidden overflow-hidden lg:flex lg:items-center">
-        <div aria-hidden className="absolute -top-24 -end-24 size-96 rounded-full bg-white/10 blur-3xl" />
-        <div aria-hidden className="absolute -bottom-32 -start-16 size-96 rounded-full bg-white/5 blur-2xl" />
-        <div className="relative mx-auto max-w-md px-10">
-          <p className="text-sm font-semibold tracking-wide text-white/70 uppercase">JobBoard</p>
-          <p className="mt-4 text-3xl leading-tight font-bold tracking-tight">
-            Your next opportunity is one application away.
-          </p>
-          <ul className="mt-8 space-y-4">
-            {BENEFITS.map((benefit) => (
-              <li key={benefit} className="flex items-start gap-3 text-white/90">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden />
-                <span>{benefit}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-12 rounded-2xl bg-white/10 p-6 leading-7 text-white/90 ring-1 ring-white/15">
-            Free for candidates. Your resume is private: only the companies you apply to can see it.
-          </p>
+        <div className="bg-primary text-primary-foreground relative hidden overflow-hidden lg:flex lg:items-center">
+          {/* Brand color with a soft shade towards the corner (tokens only, works in any theme) */}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-transparent to-black/25" />
+          <div aria-hidden className="absolute -end-24 -top-24 size-96 rounded-full bg-white/10 blur-3xl" />
+          <AuthPanel openJobs={openJobs} />
         </div>
       </div>
-    </div>
+    </AuthRoleProvider>
   )
 }

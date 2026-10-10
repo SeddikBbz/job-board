@@ -1,10 +1,16 @@
 import { z } from 'zod'
 
 const email = z.string().trim().toLowerCase().email('Enter a valid email address.')
+export const PASSWORD_MIN = 8
 const password = z
   .string()
-  .min(8, 'Password must be at least 8 characters.')
+  .min(PASSWORD_MIN, `Password must be at least ${PASSWORD_MIN} characters.`)
   .max(128, 'Password is too long.')
+
+// Rules shown next to the password field while the user types (same rule as the schema)
+export const passwordChecks = (value: string) => [
+  { label: `At least ${PASSWORD_MIN} characters`, ok: value.length >= PASSWORD_MIN },
+]
 
 export const registerSchema = z.object({
   name: z.string().trim().min(2, 'Enter your name.').max(100),
@@ -12,6 +18,8 @@ export const registerSchema = z.object({
   password,
   // Public signup can never choose "admin"
   role: z.enum(['candidate', 'employer'], { message: 'Choose candidate or employer.' }),
+  // A checked checkbox submits "on"; unchecked submits nothing
+  terms: z.literal('on', { message: 'Please accept the terms and privacy policy to continue.' }),
 })
 
 export const loginSchema = z.object({

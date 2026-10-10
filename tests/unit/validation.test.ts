@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { applySchema, MAX_RESUME_BYTES } from '@/lib/validation/application'
-import { loginSchema, registerSchema, resetPasswordSchema } from '@/lib/validation/auth'
+import { loginSchema, passwordChecks, registerSchema, resetPasswordSchema } from '@/lib/validation/auth'
 import { companySchema, jobSchema } from '@/lib/validation/dashboard'
 
 const pdf = (size = 100, type = 'application/pdf') => new File([new Uint8Array(size)], 'cv.pdf', { type })
@@ -9,7 +9,7 @@ const future = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10)
 const past = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10)
 
 describe('registerSchema', () => {
-  const valid = { name: 'Lina', email: ' Lina@Example.COM ', password: 'longenough', role: 'candidate' }
+  const valid = { name: 'Lina', email: ' Lina@Example.COM ', password: 'longenough', role: 'candidate', terms: 'on' }
 
   it('accepts a valid signup and normalises the email', () => {
     expect(registerSchema.parse(valid).email).toBe('lina@example.com')
@@ -25,6 +25,19 @@ describe('registerSchema', () => {
 
   it('rejects an invalid email', () => {
     expect(loginSchema.safeParse({ email: 'nope', password: 'x' }).success).toBe(false)
+  })
+
+  it('requires accepting the terms', () => {
+    const { terms: _terms, ...withoutTerms } = valid
+    expect(registerSchema.safeParse(withoutTerms).success).toBe(false)
+    expect(registerSchema.safeParse({ ...valid, terms: 'yes' }).success).toBe(false)
+  })
+})
+
+describe('passwordChecks', () => {
+  it('reports each rule as met or not', () => {
+    expect(passwordChecks('short')).toEqual([{ label: 'At least 8 characters', ok: false }])
+    expect(passwordChecks('long enough')).toEqual([{ label: 'At least 8 characters', ok: true }])
   })
 })
 

@@ -46,6 +46,7 @@ export function FormMessage({ error, success }: { error?: string; success?: stri
   return (
     <div
       role={error ? 'alert' : 'status'}
+      tabIndex={-1}
       className={cn(
         'flex items-start gap-2 rounded-lg border px-3 py-2 text-sm',
         error ? 'border-destructive/30 bg-destructive/5 text-destructive' : 'border-emerald-600/30 bg-emerald-50 text-emerald-800',

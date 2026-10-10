@@ -14,12 +14,13 @@ export async function register(page: Page, user: { name: string; email: string; 
   // The token appears only after React has loaded the form. Typing earlier can be undone by
   // hydration (a fresh dev server is slow), e.g. the role silently resets to "Find a job".
   await waitForHumanCheck(page)
-  const role = page.getByLabel(user.role === 'employer' ? 'Hire people' : 'Find a job')
+  const role = page.getByLabel(user.role === 'employer' ? 'Employer' : 'Candidate', { exact: true })
   await role.check()
   await expect(role).toBeChecked()
   await page.getByLabel('Full name').fill(user.name)
   await page.getByLabel('Email').fill(user.email)
-  await page.getByLabel('Password').fill(PASSWORD)
+  await page.getByLabel('Password', { exact: true }).fill(PASSWORD)
+  await page.getByRole('checkbox', { name: /I agree to the terms/ }).check()
   await page.getByRole('button', { name: 'Create account' }).click()
   await page.waitForURL('**/dashboard')
 }
@@ -28,7 +29,7 @@ export async function login(page: Page, email: string) {
   await page.goto('/login')
   await waitForHumanCheck(page)
   await page.getByLabel('Email').fill(email)
-  await page.getByLabel('Password').fill(PASSWORD)
+  await page.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await page.getByRole('button', { name: 'Log in' }).click()
   await page.waitForURL('**/dashboard')
 }

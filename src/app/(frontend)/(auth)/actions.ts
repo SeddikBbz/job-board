@@ -37,7 +37,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     // Public signup: access control applies, and the protectRole hook blocks "admin"
     await payload.create({
       collection: 'users',
-      data: parsed.data,
+      data: { name: parsed.data.name, email: parsed.data.email, password: parsed.data.password, role: parsed.data.role },
       overrideAccess: false,
     })
   } catch (error) {
@@ -49,7 +49,8 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   }
 
   await login({ collection: 'users', config, email: parsed.data.email, password: parsed.data.password })
-  redirect('/dashboard')
+  // Back to where the visitor was going (e.g. a job they wanted to apply to), same-site only
+  redirect(safeRedirectPath(raw.next))
 }
 
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
