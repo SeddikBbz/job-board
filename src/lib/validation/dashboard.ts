@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { JOB_TYPES, WORK_MODES } from '@/lib/jobFilters'
+import { checkImage } from '@/lib/validation/media'
 
 const optionalText = (max: number) =>
   z
@@ -14,8 +15,6 @@ const optionalNumber = z
   .union([z.literal(''), z.coerce.number().int().min(0, 'Must be 0 or more.')])
   .optional()
   .transform((v) => (v === '' || v === undefined ? undefined : v))
-
-export const MAX_LOGO_BYTES = 2 * 1024 * 1024
 
 export const companySchema = z.object({
   name: z.string().trim().min(2, 'Enter the company name.').max(120),
@@ -33,8 +32,11 @@ export const companySchema = z.object({
     .instanceof(File)
     .optional()
     .transform((f) => (f && f.size > 0 ? f : undefined))
-    .refine((f) => !f || f.type.startsWith('image/'), 'Logo must be an image.')
-    .refine((f) => !f || f.size <= MAX_LOGO_BYTES, 'Logo must be 2 MB or smaller.'),
+    // Same rules as the media collection (type, size); pixel count is checked on the server
+    .superRefine((f, ctx) => {
+      const error = f && checkImage({ type: f.type, size: f.size })
+      if (error) ctx.addIssue({ code: 'custom', message: error })
+    }),
 })
 
 export const jobSchema = z

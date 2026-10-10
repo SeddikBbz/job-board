@@ -45,6 +45,8 @@ const nextConfig: NextConfig = {
         pathname: '/api/media/file/**',
       },
     ],
+    // Images stored on Vercel Blob can also be loaded directly from the storage domain
+    remotePatterns: [{ protocol: 'https', hostname: '*.public.blob.vercel-storage.com' }],
   },
   async headers() {
     return [

@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { logoutAction } from '@/app/(frontend)/(auth)/actions'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,16 +15,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { UserAvatar } from '@/components/user-avatar'
 
 type Me = { name: string; email: string; role: 'admin' | 'employer' | 'candidate' } | null
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
 
 // Fetched in the browser so the header doesn't make every page dynamic (cookies).
 // Re-checked on navigation so it updates right after login and logout.
@@ -73,11 +65,7 @@ export function UserNav() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-10 gap-2 rounded-full ps-1 pe-3" aria-label={`Account menu for ${user.name}`}>
-            <Avatar className="size-8">
-              <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-semibold">
-                {initials(user.name)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar name={user.name} size={32} />
             <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">{user.name}</span>
           </Button>
         </DropdownMenuTrigger>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { CompanyLogo } from '@/components/company-logo'
 import { CompanyForm } from '@/components/dashboard-forms'
 import { getMyCompany, requireRole } from '@/lib/dashboard'
+import { imageUrl } from '@/lib/media'
 
 export const metadata: Metadata = { title: 'Company profile' }
 
@@ -31,6 +32,7 @@ export default async function CompanyProfilePage() {
           location: company?.location ?? undefined,
           description: company?.description ?? undefined,
           size: company?.size ?? undefined,
+          logoUrl: imageUrl(company?.logo, ['logo', 'card']),
         }}
       />
     </div>

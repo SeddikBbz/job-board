@@ -51,7 +51,7 @@ export async function saveCompany(_prev: FormState, formData: FormData): Promise
     if (logo) {
       const media = await payload.create({
         collection: 'media',
-        data: { alt: `${fields.name} logo` },
+        data: { alt: `${fields.name} logo`, kind: 'logo' },
         file: { data: Buffer.from(await logo.arrayBuffer()), mimetype: logo.type, name: logo.name, size: logo.size },
         ...asUser,
       })
@@ -65,7 +65,9 @@ export async function saveCompany(_prev: FormState, formData: FormData): Promise
       depth: 0,
       ...asUser,
     })
-    const data = { ...fields, ...(logoId ? { logo: logoId } : {}) }
+    // A new logo wins; otherwise the "Remove" button sends logoRemove=1
+    const removeLogo = formData.get('logoRemove') === '1'
+    const data = { ...fields, ...(logoId ? { logo: logoId } : removeLogo ? { logo: null } : {}) }
     if (docs[0]) {
       await payload.update({ collection: 'companies', id: docs[0].id, data, ...asUser })
     } else {

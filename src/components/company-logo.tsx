@@ -1,7 +1,8 @@
 import Image from 'next/image'
 
+import { imageUrl } from '@/lib/media'
 import { cn } from '@/lib/utils'
-import type { Company, Media } from '@/payload-types'
+import type { Company } from '@/payload-types'
 
 type Props = {
   company: Pick<Company, 'name' | 'logo'>
@@ -9,40 +10,31 @@ type Props = {
   className?: string
 }
 
+// Square frame for a company logo. Logos of any shape fit inside without cropping (object-contain);
+// without a logo, the first letter is shown on a brand-colored tile.
 export function CompanyLogo({ company, size = 48, className }: Props) {
-  const logo = typeof company.logo === 'object' ? (company.logo as Media | null) : null
-  const src = logo?.sizes?.thumbnail?.url || logo?.url
+  // The `logo` size (400x200, never cropped) is plenty for every place a logo is shown
+  const src = imageUrl(company.logo, ['logo', 'card'])
+  const frame = cn('flex shrink-0 items-center justify-center self-start overflow-hidden rounded-lg', className)
 
   if (!src) {
-    const initials = company.name
-      .split(/\s+/)
-      .map((w) => w[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase()
     return (
       <div
         aria-hidden
-        style={{ width: size, height: size }}
-        className={cn(
-          'bg-muted text-muted-foreground flex shrink-0 items-center justify-center self-start rounded-lg text-sm font-semibold',
-          className,
-        )}
+        data-testid="company-logo-fallback"
+        style={{ width: size, height: size, fontSize: size * 0.42 }}
+        className={cn(frame, 'bg-secondary text-primary font-semibold')}
       >
-        {initials}
+        {company.name.trim()[0]?.toUpperCase()}
       </div>
     )
   }
 
+  const alt = typeof company.logo === 'object' && company.logo?.alt ? company.logo.alt : `${company.name} logo`
   return (
-    <Image
-      src={src}
-      alt={logo?.alt || `${company.name} logo`}
-      width={size}
-      height={size}
-      // Fixed size + self-start: otherwise flex rows stretch the image to the card's height
-      style={{ width: size, height: size }}
-      className={cn('shrink-0 self-start rounded-lg object-cover', className)}
-    />
+    // Fixed size + self-start: otherwise flex rows stretch the frame to the card's height
+    <div style={{ width: size, height: size }} className={cn(frame, 'bg-white')}>
+      <Image src={src} alt={alt} width={size} height={size} className="size-full object-contain" />
+    </div>
   )
 }

@@ -10,6 +10,7 @@ import {
   updateApplicationStatus,
 } from '@/app/(frontend)/dashboard/actions'
 import { FormField, FormMessage } from '@/components/form'
+import { ImageUpload } from '@/components/image-upload'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { JOB_TYPE_LABELS, WORK_MODE_LABELS } from '@/lib/format'
@@ -100,6 +101,7 @@ export type CompanyDefaults = {
   location?: string
   description?: string
   size?: string
+  logoUrl?: string | null
 }
 
 export function CompanyForm({ defaults }: { defaults: CompanyDefaults }) {
@@ -122,11 +124,7 @@ export function CompanyForm({ defaults }: { defaults: CompanyDefaults }) {
         options={['1-10', '11-50', '51-200', '201-1000', '1000+'].map((s) => ({ value: s, label: `${s} employees` }))}
       />
       <Textarea label="About the company" name="description" defaultValue={v.description} errors={e.description} />
-      <div className="space-y-2">
-        <Label htmlFor="logo">Logo (image, max 2 MB)</Label>
-        <input id="logo" name="logo" type="file" accept="image/*" className="text-sm file:bg-secondary file:me-3 file:rounded-md file:border-0 file:px-3 file:py-1.5" />
-        {e.logo && <p className="text-destructive text-sm">{e.logo[0]}</p>}
-      </div>
+      <ImageUpload name="logo" label="Logo" currentSrc={defaults.logoUrl} error={e.logo?.[0]} />
       <Button type="submit" disabled={pending}>
         {pending && <Loader2 className="animate-spin" aria-hidden />}
         Save company
