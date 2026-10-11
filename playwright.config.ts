@@ -15,7 +15,8 @@ export default defineConfig({
   workers: 1,
   timeout: 180_000,
   expect: { timeout: 30_000 },
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
+  // In CI, `github` also turns each failure into an annotation readable on the run page
+  reporter: process.env.CI ? [['list'], ['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
