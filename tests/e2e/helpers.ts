@@ -14,9 +14,10 @@ export async function register(page: Page, user: { name: string; email: string; 
   // The token appears only after React has loaded the form. Typing earlier can be undone by
   // hydration (a fresh dev server is slow), e.g. the role silently resets to "Find a job".
   await waitForHumanCheck(page)
-  const role = page.getByLabel(user.role === 'employer' ? 'Employer' : 'Candidate', { exact: true })
-  await role.check()
-  await expect(role).toBeChecked()
+  // Click the visible segment (the radio inside it is visually hidden), like a user would
+  const label = user.role === 'employer' ? 'Employer' : 'Candidate'
+  await page.locator('label', { hasText: new RegExp(`^${label}$`) }).click()
+  await expect(page.getByLabel(label, { exact: true })).toBeChecked()
   await page.getByLabel('Full name').fill(user.name)
   await page.getByLabel('Email').fill(user.email)
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD)

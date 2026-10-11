@@ -83,7 +83,7 @@ export function RegisterForm({ siteKey, next, initialRole = 'candidate' }: { sit
           {ROLES.map((option) => (
             <label
               key={option.value}
-              className="text-muted-foreground has-[:checked]:bg-background has-[:checked]:text-foreground has-[:focus-visible]:ring-ring flex cursor-pointer items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors has-[:checked]:shadow-sm has-[:focus-visible]:ring-2"
+              className="text-foreground/75 has-[:checked]:bg-background has-[:checked]:text-foreground has-[:focus-visible]:ring-ring flex cursor-pointer items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors has-[:checked]:shadow-sm has-[:focus-visible]:ring-2"
             >
               <input
                 type="radio"
@@ -115,11 +115,11 @@ export function RegisterForm({ siteKey, next, initialRole = 'candidate' }: { sit
           />
           <span className="text-muted-foreground">
             I agree to the{' '}
-            <Link href="/terms" target="_blank" className="text-primary hover:underline">
+            <Link href="/terms" target="_blank" className="text-primary font-medium underline underline-offset-2">
               terms
             </Link>{' '}
             and the{' '}
-            <Link href="/privacy" target="_blank" className="text-primary hover:underline">
+            <Link href="/privacy" target="_blank" className="text-primary font-medium underline underline-offset-2">
               privacy policy
             </Link>
             .
