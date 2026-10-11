@@ -32,7 +32,8 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await deleteTestData(payload, DOMAIN)
+  // Skipped when setup failed (e.g. no database connection): the real error is already reported
+  if (payload) await deleteTestData(payload, DOMAIN)
 })
 
 describe('resizing and generated sizes', () => {
