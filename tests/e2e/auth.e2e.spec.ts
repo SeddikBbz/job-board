@@ -29,7 +29,8 @@ test.describe.serial('sign in and sign up', () => {
     await page.getByLabel('Email').fill(candidate.email)
     await page.getByLabel('Password', { exact: true }).fill('WrongPassword1!')
     await page.getByRole('button', { name: 'Log in' }).click()
-    const alert = page.getByRole('alert')
+    // Our error box (Next.js also has a hidden role=alert route announcer)
+    const alert = page.getByRole('alert').filter({ hasText: 'Invalid email or password' })
     await expect(alert).toBeVisible()
     // Focus moves to the error so keyboard and screen reader users notice it
     await expect(alert).toBeFocused()

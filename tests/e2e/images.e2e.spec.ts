@@ -41,5 +41,6 @@ test('employer uploads a logo and sees it on the job card and the company page',
   await card.getByRole('link', { name: jobTitle }).click()
   await page.getByRole('link', { name: company }).first().click()
   await expect(page.getByRole('heading', { level: 1, name: company })).toBeVisible()
-  await expect(page.getByAltText(`${company} logo`)).toBeVisible()
+  // Shown in the page header and again on the job card
+  await expect(page.getByAltText(`${company} logo`).first()).toBeVisible()
 })
