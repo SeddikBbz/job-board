@@ -212,6 +212,8 @@ export function SearchBox({ mode, className }: Props) {
       if (open && active >= 0 && options[active]) choose(options[active])
       else searchText(value)
     } else if (e.key === 'Escape') {
+      // Browsers clear a search field on Escape; here it only closes the list
+      e.preventDefault()
       setOpen(false)
       setActive(-1)
     }
@@ -273,7 +275,7 @@ export function SearchBox({ mode, className }: Props) {
             const groupId = `${listId}-${kind}`
             return (
               <div key={kind} role="group" aria-labelledby={groupId} className="py-1">
-                <div id={groupId} role="presentation" className="text-muted-foreground px-3 py-1 text-xs font-semibold tracking-wide uppercase">
+                <div id={groupId} role="presentation" className="text-foreground/70 px-3 py-1 text-xs font-semibold tracking-wide uppercase">
                   {title}
                 </div>
                 {items.map(({ o, i }) => (
@@ -292,7 +294,7 @@ export function SearchBox({ mode, className }: Props) {
                     <span className="min-w-0 flex-1 truncate">
                       <Highlight text={o.label} query={typed} />
                     </span>
-                    {'detail' in o && o.detail && <span className="text-muted-foreground truncate text-xs">{o.detail}</span>}
+                    {'detail' in o && o.detail && <span className="text-foreground/70 truncate text-xs">{o.detail}</span>}
                   </div>
                 ))}
               </div>

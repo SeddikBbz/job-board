@@ -40,7 +40,8 @@ test.describe.serial('job board', () => {
 
     // The new job is public and searchable
     await page.goto(`/jobs?q=${encodeURIComponent(jobTitle)}`)
-    await page.getByRole('link', { name: jobTitle }).click()
+    // exact: the search chip for the same words is also a link
+    await page.getByRole('link', { name: jobTitle, exact: true }).click()
     // In `pnpm dev` the first visit compiles the job page route, which can take a while
     await page.waitForURL(/\/jobs\/e2e-platform-engineer-/, { timeout: 120_000 })
     await expect(page.getByRole('heading', { level: 1, name: jobTitle })).toBeVisible({ timeout: 60_000 })

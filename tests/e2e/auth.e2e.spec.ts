@@ -89,7 +89,8 @@ test.describe('accessibility', () => {
         .exclude('[data-testid="turnstile"]')
         .analyze()
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
-      expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
+      // Name the failing elements so the report shows what to fix
+      expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`)).toEqual([])
     })
   }
 })

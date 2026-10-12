@@ -57,5 +57,6 @@ test('no serious accessibility problems with the suggestions open', async ({ pag
   await expect(page.getByRole('listbox')).toBeVisible()
   const results = await new AxeBuilder({ page }).analyze()
   const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
-  expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([])
+  // Name the failing elements so the report shows what to fix
+      expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`)).toEqual([])
 })
