@@ -2,6 +2,7 @@ import { Banknote, Briefcase, Clock, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 import { CompanyLogo } from '@/components/company-logo'
+import { jobPlace, jobSkills } from '@/lib/jobTaxonomy'
 import { formatSalary, JOB_TYPE_LABELS, timeAgo, WORK_MODE_LABELS } from '@/lib/format'
 import type { Company, Job } from '@/payload-types'
 
@@ -11,6 +12,7 @@ const isNew = (publishedAt?: string | null) =>
 export function JobCard({ job }: { job: Job }) {
   const company = typeof job.company === 'object' ? (job.company as Company) : null
   const salary = formatSalary(job)
+  const place = jobPlace(job)
 
   return (
     <article className="group bg-card hover:border-primary/40 relative flex h-full gap-4 rounded-xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-foreground/5">
@@ -37,9 +39,9 @@ export function JobCard({ job }: { job: Job }) {
         </div>
 
         <ul className="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
-          {job.location && (
+          {place && (
             <li className="inline-flex items-center gap-1.5">
-              <MapPin className="size-4" aria-hidden /> {job.location}
+              <MapPin className="size-4" aria-hidden /> {place}
             </li>
           )}
           {(job.jobType || job.workMode) && (
@@ -63,9 +65,9 @@ export function JobCard({ job }: { job: Job }) {
               <Banknote className="size-3.5" aria-hidden /> {salary}
             </span>
           )}
-          {job.skills?.slice(0, 4).map((skill) => (
-            <span key={skill} className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs font-medium">
-              {skill}
+          {jobSkills(job).slice(0, 4).map((skill) => (
+            <span key={skill.id} className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs font-medium">
+              {skill.name}
             </span>
           ))}
         </div>

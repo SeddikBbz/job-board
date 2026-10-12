@@ -71,11 +71,17 @@ describe('applySchema', () => {
 describe('jobSchema', () => {
   const base = { title: 'Backend Developer', description: 'A description that is long enough.' }
 
-  it('turns empty optional fields into undefined and normalises skills', () => {
-    const parsed = jobSchema.parse({ ...base, salaryMin: '', jobType: '', skills: 'Go, go , Kubernetes,' })
+  it('turns empty optional fields into undefined and keeps each skill id once', () => {
+    const parsed = jobSchema.parse({ ...base, salaryMin: '', jobType: '', city: '', skills: ['3', '3', '7'] })
     expect(parsed.salaryMin).toBeUndefined()
     expect(parsed.jobType).toBeUndefined()
-    expect(parsed.skills).toEqual(['go', 'kubernetes'])
+    expect(parsed.city).toBeUndefined()
+    expect(parsed.skills).toEqual([3, 7])
+  })
+
+  it('allows at most 15 skills', () => {
+    const many = Array.from({ length: 16 }, (_, i) => String(i + 1))
+    expect(jobSchema.safeParse({ ...base, skills: many }).success).toBe(false)
   })
 
   it('requires salaryMax >= salaryMin', () => {

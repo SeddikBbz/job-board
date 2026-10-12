@@ -87,8 +87,10 @@ export async function saveJob(_prev: FormState, formData: FormData): Promise<For
   const user = await currentEmployer()
   if (!user) return { error: 'Only employers can post jobs.' }
 
-  const values = formValues(formData)
-  const parsed = jobSchema.safeParse(values)
+  // Skills arrive as one form value per chosen skill
+  const skills = formData.getAll('skills').map(String)
+  const values = { ...formValues(formData), skills: skills.join(',') }
+  const parsed = jobSchema.safeParse({ ...values, skills })
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors, values }
   const { id, intent, description, ...fields } = parsed.data
 

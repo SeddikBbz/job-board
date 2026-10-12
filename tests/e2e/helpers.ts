@@ -43,5 +43,13 @@ export async function logout(page: Page) {
   await expect(page.locator('header').getByRole('link', { name: 'Log in' })).toBeVisible()
 }
 
+// Searches the skill picker (an alias works too, e.g. "golang") and ticks the skill
+export async function pickSkill(page: Page, search: string, name: string) {
+  const picker = page.getByTestId('skill-picker')
+  await picker.getByLabel('Search skills').fill(search)
+  await picker.locator('label', { hasText: new RegExp(`^${name}$`) }).click()
+  await expect(picker.getByRole('button', { name: `Remove ${name}` })).toBeVisible()
+}
+
 // Same tiny valid PDF the integration tests use
 export { pdfFile } from '../helpers/fixtures'

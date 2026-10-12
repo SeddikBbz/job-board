@@ -33,7 +33,15 @@ const CATEGORIES = [
   { label: 'Product & management', href: '/jobs?q=manager', icon: Users },
 ]
 
-const POPULAR_SEARCHES = ['react', 'python', 'typescript', 'node', 'sql', 'figma']
+// Skill slugs (see the skills list in the admin panel)
+const POPULAR_SEARCHES = [
+  ['react', 'React'],
+  ['python', 'Python'],
+  ['typescript', 'TypeScript'],
+  ['node-js', 'Node.js'],
+  ['sql', 'SQL'],
+  ['figma', 'Figma'],
+]
 
 export default async function HomePage() {
   const [jobs, stats, companies] = await Promise.all([getLatestJobs(6), getStats(), getFeaturedCompanies(6)])
@@ -66,13 +74,13 @@ export default async function HomePage() {
 
           <div className="text-muted-foreground mt-5 flex flex-wrap items-center gap-2 text-sm">
             <span>Popular:</span>
-            {POPULAR_SEARCHES.map((skill) => (
+            {POPULAR_SEARCHES.map(([slug, label]) => (
               <Link
-                key={skill}
-                href={`/jobs?skills=${skill}`}
+                key={slug}
+                href={`/jobs?skills=${slug}`}
                 className="bg-background hover:border-primary/40 hover:text-foreground rounded-full border px-3 py-1 transition-colors"
               >
-                {skill}
+                {label}
               </Link>
             ))}
           </div>

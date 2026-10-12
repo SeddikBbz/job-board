@@ -54,9 +54,11 @@ describe('buildJobsWhere', () => {
       and: [
         { jobType: { in: ['full-time'] } },
         { workMode: { in: ['remote'] } },
-        { location: { like: 'Oran' } },
+        // A city from the list (any spelling) or the old free text
+        { or: [{ 'city.searchText': { like: 'oran' } }, { location: { like: 'Oran' } }] },
         { salaryMax: { greater_than_equal: 1000 } },
-        { skills: { in: ['go'] } },
+        // A link slug or a typed word
+        { or: [{ 'skills.slug': { equals: 'go' } }, { 'skills.searchText': { like: 'go' } }] },
       ],
     })
   })
@@ -69,7 +71,8 @@ describe('buildJobsWhere', () => {
             { title: { like: 'React' } },
             { location: { like: 'React' } },
             { 'company.name': { like: 'React' } },
-            { skills: { in: ['react'] } },
+            { 'skills.searchText': { like: 'react' } },
+            { 'city.searchText': { like: 'react' } },
           ],
         },
       ],

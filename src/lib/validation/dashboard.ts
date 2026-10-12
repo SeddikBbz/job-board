@@ -51,12 +51,18 @@ export const jobSchema = z
     salaryMin: optionalNumber,
     salaryMax: optionalNumber,
     salaryCurrency: z.union([z.literal(''), z.enum(['DZD', 'EUR', 'USD'])]).optional().transform((v) => v || undefined),
+    // Skill ids from the SkillPicker (one form value per chosen skill)
     skills: z
-      .string()
+      .array(z.coerce.number().int().positive())
+      .max(15, 'Choose at most 15 skills.')
+      .default([])
+      .transform((ids) => [...new Set(ids)]),
+    city: z.union([z.literal(''), z.coerce.number().int().positive()]).optional().transform((v) => v || undefined),
+    experienceLevel: z
+      .union([z.literal(''), z.enum(['junior', 'mid', 'senior', 'lead'])])
       .optional()
-      .transform((v) =>
-        [...new Set((v ?? '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean))].slice(0, 15),
-      ),
+      .transform((v) => v || undefined),
+    contentLanguage: z.enum(['en', 'fr', 'ar']).catch('en'),
     // <input type="date"> gives "YYYY-MM-DD"; the job expires at the end of that day (UTC)
     expiresAt: z
       .string()
@@ -71,6 +77,19 @@ export const jobSchema = z
     message: 'Expiry date must be in the future to publish.',
     path: ['expiresAt'],
   })
+
+export const EXPERIENCE_LEVELS = [
+  { value: 'junior', label: 'Junior' },
+  { value: 'mid', label: 'Mid-level' },
+  { value: 'senior', label: 'Senior' },
+  { value: 'lead', label: 'Lead' },
+] as const
+
+export const CONTENT_LANGUAGES = [
+  { value: 'en', label: 'English' },
+  { value: 'fr', label: 'French' },
+  { value: 'ar', label: 'Arabic' },
+] as const
 
 export const APPLICATION_STATUSES = ['applied', 'reviewing', 'interview', 'rejected', 'hired'] as const
 

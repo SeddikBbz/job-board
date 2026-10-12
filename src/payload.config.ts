@@ -12,6 +12,8 @@ import { Media } from './collections/Media'
 import { Resumes } from './collections/Resumes'
 import { Companies } from './collections/Companies'
 import { Jobs } from './collections/Jobs'
+import { Locations, SkillCategories, Skills } from './collections/Taxonomy'
+import { seedTaxonomy } from './lib/taxonomy'
 import { Applications } from './collections/Applications'
 import { closeExpiredJobsTask, sendEmailTask } from './jobs/tasks'
 import { emailAdapter } from './lib/email/adapter'
@@ -26,7 +28,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Resumes, Companies, Jobs, Applications],
+  collections: [Users, Media, Resumes, Companies, Jobs, Applications, SkillCategories, Skills, Locations],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -38,6 +40,13 @@ export default buildConfig({
     },
   }),
   email: emailAdapter(),
+  // Fresh databases (local dev, CI) get their schema from Payload's push, not from migrations,
+  // so the starting skills and cities are added here when the list is empty. Production already
+  // has them from the taxonomy migration, so this is one quick count there.
+  onInit: async (payload) => {
+    const { totalDocs } = await payload.count({ collection: 'skills' })
+    if (totalDocs === 0) await seedTaxonomy(payload)
+  },
   jobs: {
     tasks: [sendEmailTask, closeExpiredJobsTask],
     access: {

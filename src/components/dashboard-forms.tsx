@@ -11,22 +11,28 @@ import {
 } from '@/app/(frontend)/dashboard/actions'
 import { FormField, FormMessage } from '@/components/form'
 import { ImageUpload } from '@/components/image-upload'
+import { SkillPicker } from '@/components/skill-picker'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { JOB_TYPE_LABELS, WORK_MODE_LABELS } from '@/lib/format'
 import { JOB_TYPES, WORK_MODES } from '@/lib/jobFilters'
+import type { Taxonomy } from '@/lib/queries'
 import type { FormState } from '@/lib/validation/auth'
-import { APPLICATION_STATUSES } from '@/lib/validation/dashboard'
+import { APPLICATION_STATUSES, EXPERIENCE_LEVELS, CONTENT_LANGUAGES } from '@/lib/validation/dashboard'
 
 const selectClass =
   'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3'
 const textareaClass =
   'border-input focus-visible:border-ring focus-visible:ring-ring/50 w-full rounded-lg border bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-3'
 
-function Select({ label, name, options, defaultValue, errors }: {
+type SelectOption = { value: string; label: string }
+
+function Select({ label, name, options, groups, defaultValue, errors }: {
   label: string
   name: string
-  options: { value: string; label: string }[]
+  options?: SelectOption[]
+  // Grouped options (<optgroup>) instead of a flat list
+  groups?: { label: string; options: SelectOption[] }[]
   defaultValue?: string
   errors?: string[]
 }) {
@@ -42,10 +48,19 @@ function Select({ label, name, options, defaultValue, errors }: {
         aria-describedby={errors ? `${name}-error` : undefined}
       >
         <option value="">—</option>
-        {options.map((o) => (
+        {options?.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
+        ))}
+        {groups?.map((g) => (
+          <optgroup key={g.label} label={g.label}>
+            {g.options.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </optgroup>
         ))}
       </select>
       {errors && (
@@ -146,11 +161,26 @@ export type JobDefaults = {
   salaryMin?: string
   salaryMax?: string
   salaryCurrency?: string
+  // Comma-separated skill ids, and the city id (strings, like every other form value)
   skills?: string
+  city?: string
+  experienceLevel?: string
+  contentLanguage?: string
   expiresAt?: string
 }
 
-export function JobForm({ defaults }: { defaults: JobDefaults }) {
+// City dropdown: Remote first, then Algeria (wilayas and cities A-Z), then other countries
+function cityGroups(locations: Taxonomy['locations']) {
+  const toOption = (l: Taxonomy['locations'][number]) => ({ value: String(l.id), label: l.name })
+  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name)
+  return [
+    { label: 'Remote', options: locations.filter((l) => l.isRemote).map(toOption) },
+    { label: 'Algeria', options: locations.filter((l) => l.country === 'Algeria').sort(byName).map(toOption) },
+    { label: 'Other countries', options: locations.filter((l) => !l.isRemote && l.country !== 'Algeria').sort(byName).map(toOption) },
+  ]
+}
+
+export function JobForm({ defaults, taxonomy }: { defaults: JobDefaults; taxonomy: Taxonomy }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveJob, {})
   const v = { ...defaults, ...state.values }
   const e = state.fieldErrors ?? {}
@@ -168,8 +198,11 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
         errors={e.description}
         hint="Leave a blank line between paragraphs."
       />
-      <div className="grid gap-4 sm:grid-cols-3">
-        <FormField label="Location" name="location" defaultValue={v.location} errors={e.location} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Select label="City" name="city" defaultValue={v.city} errors={e.city} groups={cityGroups(taxonomy.locations)} />
+        <FormField label="Location details" name="location" placeholder="e.g. Hydra, or a city not in the list" defaultValue={v.location} errors={e.location} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
         <Select label="Job type" name="jobType" defaultValue={v.jobType} errors={e.jobType} options={JOB_TYPES.map((t) => ({ value: t, label: JOB_TYPE_LABELS[t] }))} />
         <Select label="Work mode" name="workMode" defaultValue={v.workMode} errors={e.workMode} options={WORK_MODES.map((m) => ({ value: m, label: WORK_MODE_LABELS[m] }))} />
       </div>
@@ -178,10 +211,21 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
         <FormField label="Maximum salary" name="salaryMax" type="number" min={0} defaultValue={v.salaryMax} errors={e.salaryMax} />
         <Select label="Currency" name="salaryCurrency" defaultValue={v.salaryCurrency} errors={e.salaryCurrency} options={['DZD', 'EUR', 'USD'].map((c) => ({ value: c, label: c }))} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Skills" name="skills" placeholder="react, typescript" hint="Comma separated." defaultValue={v.skills} errors={e.skills} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Select label="Experience level" name="experienceLevel" defaultValue={v.experienceLevel} errors={e.experienceLevel} options={EXPERIENCE_LEVELS.map((l) => ({ value: l.value, label: l.label }))} />
+        <Select label="Posting language" name="contentLanguage" defaultValue={v.contentLanguage ?? 'en'} errors={e.contentLanguage} options={CONTENT_LANGUAGES.map((l) => ({ value: l.value, label: l.label }))} />
         <FormField label="Expires on" name="expiresAt" type="date" defaultValue={v.expiresAt} errors={e.expiresAt} />
       </div>
+      <SkillPicker
+        // Re-mount with the submitted values after a failed save
+        key={v.skills ?? ''}
+        name="skills"
+        label="Skills"
+        skills={taxonomy.skills}
+        categories={taxonomy.categories}
+        defaultValue={(v.skills ?? '').split(',').filter(Boolean).map(Number)}
+        error={e.skills?.[0]}
+      />
       <div className="flex flex-wrap gap-2 pt-2">
         <Button type="submit" name="intent" value="save" variant={isNew || defaults.status !== 'draft' ? 'default' : 'outline'} disabled={pending}>
           {pending && <Loader2 className="animate-spin" aria-hidden />}

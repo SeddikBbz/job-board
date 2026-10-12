@@ -10,6 +10,7 @@ import { ApplySection } from '@/components/apply-section'
 import { CompanyLogo } from '@/components/company-logo'
 import { formatDate, formatSalary, JOB_TYPE_LABELS, timeAgo, WORK_MODE_LABELS } from '@/lib/format'
 import { jobPostingJsonLd, serializeJsonLd } from '@/lib/jobPostingJsonLd'
+import { jobPlace, jobSkills } from '@/lib/jobTaxonomy'
 import { getJobBySlug } from '@/lib/queries'
 import type { Company } from '@/payload-types'
 
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!job) return { title: 'Job not found' }
 
   const company = typeof job.company === 'object' ? (job.company as Company) : null
-  const description = [company?.name, job.location, job.jobType && JOB_TYPE_LABELS[job.jobType]]
+  const description = [company?.name, jobPlace(job), job.jobType && JOB_TYPE_LABELS[job.jobType]]
     .filter(Boolean)
     .join(' · ')
   return {
@@ -44,7 +45,7 @@ export default async function JobPage({ params }: Props) {
   const siteUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
   const overview = [
-    { icon: MapPin, label: 'Location', value: job.location },
+    { icon: MapPin, label: 'Location', value: jobPlace(job) },
     { icon: Laptop, label: 'Work mode', value: job.workMode && WORK_MODE_LABELS[job.workMode] },
     { icon: Briefcase, label: 'Job type', value: job.jobType && JOB_TYPE_LABELS[job.jobType] },
     { icon: Banknote, label: 'Salary', value: salary },
@@ -83,7 +84,7 @@ export default async function JobPage({ params }: Props) {
                     {company.name}
                   </Link>
                 )}
-                {job.location && <span>· {job.location}</span>}
+                {jobPlace(job) && <span>· {jobPlace(job)}</span>}
                 {job.publishedAt && <span>· Posted {timeAgo(job.publishedAt)}</span>}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -119,17 +120,17 @@ export default async function JobPage({ params }: Props) {
             <article className="mt-4 max-w-readable space-y-4 leading-7 text-foreground/80 [&_a]:text-primary [&_h2]:text-xl [&_h2]:font-semibold [&_li]:ms-5 [&_ol]:list-decimal [&_ul]:list-disc">
               <RichText data={job.description} />
             </article>
-            {job.skills?.length ? (
+            {jobSkills(job).length ? (
               <div className="mt-8">
                 <h3 className="text-sm font-semibold">Skills</h3>
                 <ul className="mt-3 flex flex-wrap gap-2">
-                  {job.skills.map((skill) => (
-                    <li key={skill}>
+                  {jobSkills(job).map((skill) => (
+                    <li key={skill.id}>
                       <Link
-                        href={`/jobs?skills=${encodeURIComponent(skill)}`}
+                        href={`/jobs?skills=${encodeURIComponent(skill.slug ?? '')}`}
                         className="bg-muted hover:bg-secondary hover:text-secondary-foreground rounded-md px-2.5 py-1 text-sm font-medium transition-colors"
                       >
-                        {skill}
+                        {skill.name}
                       </Link>
                     </li>
                   ))}

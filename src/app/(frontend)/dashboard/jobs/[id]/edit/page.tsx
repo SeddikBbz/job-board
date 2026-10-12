@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { JobForm } from '@/components/dashboard-forms'
 import { StatusBadge } from '@/components/status-badge'
 import { getManagedJobOr404, requireRole } from '@/lib/dashboard'
+import { getTaxonomy } from '@/lib/queries'
 import { richTextToText } from '@/lib/richText'
 
 export const metadata: Metadata = { title: 'Edit job' }
@@ -28,6 +29,7 @@ export default async function EditJobPage({ params }: Props) {
         )}
       </div>
       <JobForm
+        taxonomy={await getTaxonomy()}
         defaults={{
           id: job.id,
           status: job.status,
@@ -39,7 +41,10 @@ export default async function EditJobPage({ params }: Props) {
           salaryMin: job.salaryMin?.toString(),
           salaryMax: job.salaryMax?.toString(),
           salaryCurrency: job.salaryCurrency ?? undefined,
-          skills: job.skills?.join(', '),
+          skills: (job.skills ?? []).map((s) => (typeof s === 'object' ? s.id : s)).join(','),
+          city: job.city ? String(typeof job.city === 'object' ? job.city.id : job.city) : undefined,
+          experienceLevel: job.experienceLevel ?? undefined,
+          contentLanguage: job.contentLanguage ?? undefined,
           expiresAt: job.expiresAt?.slice(0, 10),
         }}
       />

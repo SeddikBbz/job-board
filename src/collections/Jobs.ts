@@ -111,7 +111,10 @@ export const Jobs: CollectionConfig = {
         !user || checkRole(user, ['admin']) ? true : { owner: { equals: user.id } },
     },
     { name: 'description', type: 'richText', required: true },
-    { name: 'location', type: 'text' },
+    // Structured city (filters, search, SEO). `location` stays as free text: a fallback for
+    // places that aren't in the list yet, and for jobs posted before cities existed.
+    { name: 'city', type: 'relationship', relationTo: 'locations', index: true },
+    { name: 'location', type: 'text', label: 'Location (free text)' },
     {
       name: 'jobType',
       type: 'select',
@@ -141,7 +144,37 @@ export const Jobs: CollectionConfig = {
         { name: 'salaryCurrency', type: 'select', options: ['DZD', 'EUR', 'USD'] },
       ],
     },
-    { name: 'skills', type: 'text', hasMany: true },
+    { name: 'skills', type: 'relationship', relationTo: 'skills', hasMany: true, index: true, maxRows: 15 },
+    {
+      // Free-text skills from before the skills list existed that matched no skill. Kept for review.
+      name: 'legacySkills',
+      type: 'text',
+      hasMany: true,
+      admin: { readOnly: true, description: 'Old free-text skills that matched no skill in the list.' },
+    },
+    {
+      name: 'experienceLevel',
+      type: 'select',
+      index: true,
+      options: [
+        { label: 'Junior', value: 'junior' },
+        { label: 'Mid-level', value: 'mid' },
+        { label: 'Senior', value: 'senior' },
+        { label: 'Lead', value: 'lead' },
+      ],
+    },
+    {
+      // The language the posting is written in (job content is never machine-translated)
+      name: 'contentLanguage',
+      type: 'select',
+      defaultValue: 'en',
+      index: true,
+      options: [
+        { label: 'English', value: 'en' },
+        { label: 'French', value: 'fr' },
+        { label: 'Arabic', value: 'ar' },
+      ],
+    },
     {
       name: 'status',
       type: 'select',

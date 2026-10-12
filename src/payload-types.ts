@@ -73,6 +73,9 @@ export interface Config {
     companies: Company;
     jobs: Job;
     applications: Application;
+    'skill-categories': SkillCategory;
+    skills: Skill;
+    locations: Location;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -87,6 +90,9 @@ export interface Config {
     companies: CompaniesSelect<false> | CompaniesSelect<true>;
     jobs: JobsSelect<false> | JobsSelect<true>;
     applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
+    'skill-categories': SkillCategoriesSelect<false> | SkillCategoriesSelect<true>;
+    skills: SkillsSelect<false> | SkillsSelect<true>;
+    locations: LocationsSelect<false> | LocationsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -307,16 +313,81 @@ export interface Job {
     };
     [k: string]: unknown;
   };
+  city?: (number | null) | Location;
   location?: string | null;
   jobType?: ('full-time' | 'part-time' | 'contract' | 'internship') | null;
   workMode?: ('onsite' | 'hybrid' | 'remote') | null;
   salaryMin?: number | null;
   salaryMax?: number | null;
   salaryCurrency?: ('DZD' | 'EUR' | 'USD') | null;
-  skills?: string[] | null;
+  skills?: (number | Skill)[] | null;
+  /**
+   * Old free-text skills that matched no skill in the list.
+   */
+  legacySkills?: string[] | null;
+  experienceLevel?: ('junior' | 'mid' | 'senior' | 'lead') | null;
+  contentLanguage?: ('en' | 'fr' | 'ar') | null;
   status: 'draft' | 'published' | 'closed';
   publishedAt?: string | null;
   expiresAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations".
+ */
+export interface Location {
+  id: number;
+  name: string;
+  slug?: string | null;
+  country?: string | null;
+  region?: string | null;
+  /**
+   * Other spellings people type, e.g. "reactjs" for React, "Alger" for Algiers.
+   */
+  aliases?: string[] | null;
+  /**
+   * The "Remote" entry.
+   */
+  isRemote?: boolean | null;
+  order?: number | null;
+  searchText?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skills".
+ */
+export interface Skill {
+  id: number;
+  name: string;
+  slug?: string | null;
+  categories?: (number | SkillCategory)[] | null;
+  /**
+   * Other spellings people type, e.g. "reactjs" for React, "Alger" for Algiers.
+   */
+  aliases?: string[] | null;
+  popular?: boolean | null;
+  order?: number | null;
+  searchText?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skill-categories".
+ */
+export interface SkillCategory {
+  id: number;
+  name: string;
+  slug?: string | null;
+  /**
+   * Lucide icon name, e.g. "code-2".
+   */
+  icon?: string | null;
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -482,6 +553,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'applications';
         value: number | Application;
+      } | null)
+    | ({
+        relationTo: 'skill-categories';
+        value: number | SkillCategory;
+      } | null)
+    | ({
+        relationTo: 'skills';
+        value: number | Skill;
+      } | null)
+    | ({
+        relationTo: 'locations';
+        value: number | Location;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -681,6 +764,7 @@ export interface JobsSelect<T extends boolean = true> {
   slug?: T;
   company?: T;
   description?: T;
+  city?: T;
   location?: T;
   jobType?: T;
   workMode?: T;
@@ -688,6 +772,9 @@ export interface JobsSelect<T extends boolean = true> {
   salaryMax?: T;
   salaryCurrency?: T;
   skills?: T;
+  legacySkills?: T;
+  experienceLevel?: T;
+  contentLanguage?: T;
   status?: T;
   publishedAt?: T;
   expiresAt?: T;
@@ -704,6 +791,49 @@ export interface ApplicationsSelect<T extends boolean = true> {
   resume?: T;
   coverLetter?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skill-categories_select".
+ */
+export interface SkillCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  icon?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "skills_select".
+ */
+export interface SkillsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  categories?: T;
+  aliases?: T;
+  popular?: T;
+  order?: T;
+  searchText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "locations_select".
+ */
+export interface LocationsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  country?: T;
+  region?: T;
+  aliases?: T;
+  isRemote?: T;
+  order?: T;
+  searchText?: T;
   updatedAt?: T;
   createdAt?: T;
 }

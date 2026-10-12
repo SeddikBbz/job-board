@@ -1,6 +1,8 @@
 import type { Sort, Where } from 'payload'
 import { z } from 'zod'
 
+import { normalizeText } from '@/lib/normalize'
+
 export const JOB_TYPES = ['full-time', 'part-time', 'contract', 'internship'] as const
 export const WORK_MODES = ['onsite', 'hybrid', 'remote'] as const
 export const SORTS = ['newest', 'salary-desc', 'salary-asc'] as const
@@ -64,16 +66,30 @@ export const buildJobsWhere = (filters: JobFilters): Where => {
         { title: { like: filters.q } },
         { location: { like: filters.q } },
         { 'company.name': { like: filters.q } },
-        { skills: { in: [filters.q.toLowerCase()] } },
+        // searchText holds every spelling (aliases, accents and Arabic forms removed)
+        { 'skills.searchText': { like: normalizeText(filters.q) } },
+        { 'city.searchText': { like: normalizeText(filters.q) } },
       ],
     })
   }
   if (filters.type.length) and.push({ jobType: { in: filters.type } })
   if (filters.mode.length) and.push({ workMode: { in: filters.mode } })
-  if (filters.location) and.push({ location: { like: filters.location } })
+  if (filters.location) {
+    and.push({
+      or: [{ 'city.searchText': { like: normalizeText(filters.location) } }, { location: { like: filters.location } }],
+    })
+  }
   // A job matches if it can pay at least the requested amount
   if (filters.salaryMin) and.push({ salaryMax: { greater_than_equal: filters.salaryMin } })
-  if (filters.skills.length) and.push({ skills: { in: filters.skills } })
+  // ?skills= takes slugs from links ("node-js") or words people type ("node"): any one matches
+  if (filters.skills.length) {
+    and.push({
+      or: filters.skills.flatMap((skill): Where[] => [
+        { 'skills.slug': { equals: skill } },
+        { 'skills.searchText': { like: normalizeText(skill) } },
+      ]),
+    })
+  }
 
   return and.length ? { and } : {}
 }

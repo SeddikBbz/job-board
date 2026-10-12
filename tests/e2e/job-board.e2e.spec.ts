@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { login, logout, pdfFile, register, uniqueEmail } from './helpers'
+import { login, logout, pdfFile, pickSkill, register, uniqueEmail } from './helpers'
 
 const MAILPIT = 'http://localhost:8025/api/v1'
 
@@ -23,7 +23,10 @@ test.describe.serial('job board', () => {
     await page.getByLabel('Job title').fill(jobTitle)
     await page.getByLabel('Description').fill('Build and run our platform.\n\nWork with Go and Kubernetes.')
     await page.getByLabel('Work mode').selectOption('remote')
-    await page.getByLabel('Skills').fill('go, kubernetes')
+    // Skills from two categories (Backend, DevOps and Cloud), chosen in the skill picker
+    await pickSkill(page, 'golang', 'Go')
+    await pickSkill(page, 'kubernetes', 'Kubernetes')
+    await page.getByLabel('City').selectOption({ label: 'Remote' })
     await page.getByLabel('Expires on').fill(new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10))
     await page.getByRole('button', { name: 'Publish' }).click()
     await page.waitForURL('**/dashboard/jobs')
@@ -41,6 +44,8 @@ test.describe.serial('job board', () => {
     // In `pnpm dev` the first visit compiles the job page route, which can take a while
     await page.waitForURL(/\/jobs\/e2e-platform-engineer-/, { timeout: 120_000 })
     await expect(page.getByRole('heading', { level: 1, name: jobTitle })).toBeVisible({ timeout: 60_000 })
+    // The skills chosen in the picker are shown on the job page
+    await expect(page.getByRole('link', { name: 'Kubernetes', exact: true })).toBeVisible()
 
     const apply = page.locator('#apply')
     await apply.locator('input[type=file]').setInputFiles({ name: 'cv.pdf', mimeType: 'application/pdf', buffer: pdfFile().data })

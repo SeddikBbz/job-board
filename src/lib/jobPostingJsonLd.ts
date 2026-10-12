@@ -1,5 +1,6 @@
 import { richTextToText } from '@/lib/richText'
 import type { Company, Job, Media } from '@/payload-types'
+import { jobCity, jobPlace } from '@/lib/jobTaxonomy'
 
 const EMPLOYMENT_TYPE: Record<string, string> = {
   'full-time': 'FULL_TIME',
@@ -28,12 +29,16 @@ export function jobPostingJsonLd(job: Job, siteUrl: string) {
       ...(company?.website && { sameAs: company.website }),
       ...(logo?.url && { logo: new URL(logo.url, siteUrl).toString() }),
     },
-    ...(job.workMode === 'remote'
+    ...(job.workMode === 'remote' || jobCity(job)?.isRemote
       ? { jobLocationType: 'TELECOMMUTE' }
-      : job.location && {
+      : jobPlace(job) && {
           jobLocation: {
             '@type': 'Place',
-            address: { '@type': 'PostalAddress', addressLocality: job.location },
+            address: {
+              '@type': 'PostalAddress',
+              addressLocality: jobPlace(job),
+              ...(jobCity(job)?.country && { addressCountry: jobCity(job)!.country }),
+            },
           },
         }),
     ...(job.salaryCurrency &&

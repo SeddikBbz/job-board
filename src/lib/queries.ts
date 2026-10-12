@@ -1,6 +1,8 @@
 import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
+import { TAXONOMY_TAG } from '@/hooks/revalidateTaxonomy'
+
 import { buildJobsWhere, PAGE_SIZE, sortForPayload, type JobFilters } from './jobFilters'
 import { getPayloadClient } from './payload'
 
@@ -104,3 +106,48 @@ export const getFeaturedCompanies = async (limit = 6) => {
   })
   return docs
 }
+
+// Skills, categories and cities for pickers and filters. Cached until an admin edits them.
+export const getTaxonomy = unstable_cache(
+  async () => {
+    const payload = await getPayloadClient()
+    const all = { limit: 0, pagination: false, depth: 0, overrideAccess: false } as const
+    const [categories, skills, locations] = await Promise.all([
+      payload.find({ collection: 'skill-categories', sort: 'order', select: { name: true, slug: true }, ...all }),
+      payload.find({
+        collection: 'skills',
+        sort: 'order',
+        select: { name: true, slug: true, categories: true, aliases: true, popular: true },
+        ...all,
+      }),
+      payload.find({
+        collection: 'locations',
+        sort: 'order',
+        select: { name: true, slug: true, country: true, region: true, isRemote: true },
+        ...all,
+      }),
+    ])
+    return {
+      categories: categories.docs.map((c) => ({ id: c.id, name: c.name, slug: c.slug ?? '' })),
+      skills: skills.docs.map((s) => ({
+        id: s.id,
+        name: s.name,
+        slug: s.slug ?? '',
+        categories: (s.categories ?? []).map((c) => (typeof c === 'object' ? c.id : c)),
+        aliases: s.aliases ?? [],
+        popular: Boolean(s.popular),
+      })),
+      locations: locations.docs.map((l) => ({
+        id: l.id,
+        name: l.name,
+        slug: l.slug ?? '',
+        country: l.country ?? '',
+        isRemote: Boolean(l.isRemote),
+      })),
+    }
+  },
+  ['taxonomy'],
+  { tags: [TAXONOMY_TAG], revalidate: 3600 },
+)
+
+export type Taxonomy = Awaited<ReturnType<typeof getTaxonomy>>

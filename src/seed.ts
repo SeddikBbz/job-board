@@ -12,6 +12,7 @@ import { getPayload, type CollectionSlug, type Payload } from 'payload'
 import sharp from 'sharp'
 
 import type { Job, User } from './payload-types'
+import { buildMatcher, matchAll, seedTaxonomy } from './lib/taxonomy'
 
 const DOMAIN = '@seed.local'
 const PASSWORD = process.env.SEED_PASSWORD || 'password123'
@@ -212,6 +213,13 @@ async function seed(payload: Payload) {
   }
   payload.logger.info(`Seeded ${companies.length} companies`)
 
+  // Skills and cities first (idempotent), then a matcher from the seed's free-text values
+  await seedTaxonomy(payload)
+  const find = (collection: 'skills' | 'locations') =>
+    payload.find({ collection, limit: 0, pagination: false, depth: 0 }).then((r) => r.docs)
+  const matchSkill = buildMatcher(await find('skills'))
+  const matchCity = buildMatcher(await find('locations'))
+
   // 40 jobs: 32 published, 5 drafts, 3 closed
   const jobs: Job[] = []
   for (let i = 0; i < 40; i++) {
@@ -241,7 +249,13 @@ async function seed(payload: Payload) {
           salaryMin,
           salaryMax: salaryMin + (inEurope ? between(5, 20) * 1000 : between(20, 100) * 1000),
           salaryCurrency: inEurope ? 'EUR' : 'DZD',
-          skills: pickMany(role.skills, between(2, 4)),
+          // Values with no skill in the list (e.g. "roadmapping") are kept as legacy text, like real old data
+          ...(() => {
+            const { ids, unmatched } = matchAll(pickMany(role.skills, between(2, 4)), matchSkill)
+            return { skills: ids, legacySkills: unmatched }
+          })(),
+          city: matchCity(workMode === 'remote' ? 'Remote' : (company.location ?? '')),
+          experienceLevel: ({ Junior: 'junior', Senior: 'senior', Lead: 'lead', '': 'mid' } as const)[level],
           status,
           // Spread publish dates over the last 30 days so "latest jobs" looks realistic
           publishedAt: status === 'draft' ? undefined : daysFromNow(-between(0, 30)),
