@@ -1,13 +1,16 @@
 import { Container } from '@/components/container'
 import { DashboardMobileNav, DashboardNav } from '@/components/dashboard-nav'
-import { requireUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth'
 
 const ROLE_LABELS = { admin: 'Admin', employer: 'Employer', candidate: 'Candidate' } as const
 
-// Every page under /dashboard requires a logged-in user.
-// Pages still re-check the user and role themselves before reading or writing data.
+// Every page under /dashboard requires a logged-in user, and each page enforces it itself
+// (requireUser/requireRole with its own path). The layout must not redirect: it doesn't know
+// the current path, so it would always send ?next=/dashboard and lose deep links.
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireUser('/dashboard')
+  const user = await getCurrentUser()
+  // Logged out: let the page run, it redirects to /login?next=<this page>
+  if (!user) return children
   return (
     // flex-1 + flex column: sidebar and content fill the height between header and footer
     <div className="bg-surface flex flex-1 flex-col">
