@@ -1,7 +1,8 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import React from 'react'
 
+import { RegisterServiceWorker } from '@/components/pwa/register-sw'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import './styles.css'
@@ -16,6 +17,20 @@ export const metadata: Metadata = {
     template: '%s | JobBoard',
   },
   description: 'Browse jobs from great companies and apply in minutes.',
+  applicationName: 'JobBoard',
+  // Installed on iOS: opens fullscreen with this title
+  appleWebApp: { capable: true, title: 'JobBoard', statusBarStyle: 'default' },
+  icons: {
+    icon: [{ url: '/icons/favicon-32.png', sizes: '32x32', type: 'image/png' }],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
+}
+
+// viewport-fit=cover lets the app use the whole screen on notched phones; the header and
+// footer add the safe-area insets so nothing hides under the notch or home bar
+export const viewport: Viewport = {
+  themeColor: '#4f46e5',
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <SiteFooter />
+        <RegisterServiceWorker />
       </body>
     </html>
   )

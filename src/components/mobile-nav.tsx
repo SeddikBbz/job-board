@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 import { Logo } from '@/components/logo'
 import { MAIN_NAV } from '@/components/nav-links'
+import { InstallApp } from '@/components/pwa/install-app'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
@@ -39,6 +40,7 @@ export function MobileNav() {
             </Link>
           ))}
         </nav>
+        <InstallApp className="mx-4" />
       </SheetContent>
     </Sheet>
   )

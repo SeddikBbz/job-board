@@ -8,7 +8,7 @@ import { UserNav } from '@/components/user-nav'
 
 export function SiteHeader() {
   return (
-    <header className="bg-background/85 supports-[backdrop-filter]:bg-background/70 sticky top-0 z-40 border-b backdrop-blur">
+    <header className="bg-background/85 supports-[backdrop-filter]:bg-background/70 sticky top-0 z-40 border-b pt-[env(safe-area-inset-top)] backdrop-blur">
       <Container className="flex h-16 items-center gap-3 md:gap-6">
         <MobileNav />
         <Logo />

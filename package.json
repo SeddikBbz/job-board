@@ -12,6 +12,7 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "typecheck": "tsc --noEmit",
+    "icons": "tsx scripts/generate-icons.ts",
     "media:reprocess": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/reprocessMedia.ts",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed.ts",
     "seed:reset": "cross-env SEED_RESET=1 NODE_OPTIONS=--no-deprecation payload run src/seed.ts",

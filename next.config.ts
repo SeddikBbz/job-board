@@ -18,6 +18,8 @@ const contentSecurityPolicy = [
   "font-src 'self'",
   `connect-src 'self' https://challenges.cloudflare.com${isDev ? ' ws: wss:' : ''}`,
   'frame-src https://challenges.cloudflare.com',
+  "worker-src 'self'",
+  "manifest-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -51,6 +53,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },
+      // Always fetch the latest service worker, so updates reach installed apps
+      {
+        source: '/(sw|sw-rules).js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
       // The CSP is only for the public site; the Payload admin and API manage their own needs
       {
         source: '/((?!admin|api).*)',

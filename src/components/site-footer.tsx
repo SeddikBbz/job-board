@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { Container } from '@/components/container'
 import { Logo } from '@/components/logo'
+import { InstallApp } from '@/components/pwa/install-app'
 
 const COLUMNS = [
   {
@@ -33,10 +34,11 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-surface border-t">
+    <footer className="bg-surface border-t pb-[env(safe-area-inset-bottom)]">
       <Container className="grid gap-10 py-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
         <div className="space-y-3">
           <Logo />
+          <InstallApp />
           <p className="text-muted-foreground max-w-xs text-sm leading-6">
             The simplest way to find your next role, and for companies to meet great candidates.
           </p>
