@@ -2,7 +2,9 @@
 
 import { Loader2, X } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+import { useSearchTransition } from '@/components/search/search-transition'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,13 +19,14 @@ import {
 import { JOB_TYPE_LABELS, WORK_MODE_LABELS } from '@/lib/format'
 import { JOB_TYPES, WORK_MODES } from '@/lib/jobFilters'
 
-const FILTER_KEYS = ['q', 'location', 'type', 'mode', 'skills', 'salaryMin', 'sort', 'page']
+const FILTER_KEYS = ['q', 'location', 'type', 'mode', 'skills', 'exp', 'lang', 'posted', 'salaryMin', 'sort', 'page']
 
 export function JobFilters() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [isPending, startTransition] = useTransition()
+  // Shared with the search box and the results, which dim while the list updates
+  const { isPending, startTransition } = useSearchTransition()
 
   // Every change writes to the URL; the Server Component re-renders from it.
   const setParam = (key: string, value: string | null) => {
@@ -31,7 +34,8 @@ export function JobFilters() {
     if (value) params.set(key, value)
     else params.delete(key)
     if (key !== 'page') params.delete('page') // new filters start at page 1
-    startTransition(() => router.push(`${pathname}?${params}`, { scroll: false }))
+    // replace, not push: changing filters shouldn't fill the browser history
+    startTransition(() => router.replace(`${pathname}?${params}`, { scroll: false }))
   }
 
   const toggleInList = (key: string, value: string) => {
@@ -49,7 +53,7 @@ export function JobFilters() {
         {isPending && <Loader2 className="text-muted-foreground size-4 animate-spin" aria-label="Updating results" />}
       </div>
 
-      <DebouncedInput label="Keywords" name="q" placeholder="Title, company, skill…" onCommit={setParam} />
+      {/* Keywords and skills come from the search box above the results */}
       <DebouncedInput label="Location" name="location" placeholder="Algiers, Remote…" onCommit={setParam} />
 
       <CheckboxGroup
@@ -65,7 +69,6 @@ export function JobFilters() {
         onToggle={(v) => toggleInList('mode', v)}
       />
 
-      <DebouncedInput label="Skills" name="skills" placeholder="react, python" onCommit={setParam} />
       <DebouncedInput
         label="Minimum salary"
         name="salaryMin"
@@ -94,7 +97,7 @@ export function JobFilters() {
         <Button
           variant="outline"
           className="w-full"
-          onClick={() => startTransition(() => router.push(pathname, { scroll: false }))}
+          onClick={() => startTransition(() => router.replace(pathname, { scroll: false }))}
         >
           <X aria-hidden /> Clear filters
         </Button>

@@ -10,12 +10,13 @@ import {
   Users,
 } from 'lucide-react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 import { Container } from '@/components/container'
 import { CompanyLogo } from '@/components/company-logo'
 import { EmptyState } from '@/components/empty-state'
 import { JobCard } from '@/components/job-card'
-import { SearchBar } from '@/components/search-bar'
+import { SearchBox } from '@/components/search/search-box'
 import { Button } from '@/components/ui/button'
 import { getFeaturedCompanies, getLatestJobs, getStats } from '@/lib/queries'
 
@@ -70,7 +71,9 @@ export default async function HomePage() {
             Search roles from companies hiring now, and apply in two minutes with one resume.
           </p>
 
-          <SearchBar className="mt-8 max-w-3xl" />
+          <Suspense>
+            <SearchBox mode="navigate" className="mt-8 max-w-3xl" />
+          </Suspense>
 
           <div className="text-muted-foreground mt-5 flex flex-wrap items-center gap-2 text-sm">
             <span>Popular:</span>

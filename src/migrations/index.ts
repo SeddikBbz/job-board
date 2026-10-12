@@ -2,6 +2,7 @@ import * as migration_20261007_073935_initial from './20261007_073935_initial';
 import * as migration_20261008_173203_media_add_sizes_and_kind from './20261008_173203_media_add_sizes_and_kind';
 import * as migration_20261008_173232_media_drop_old_thumbnail from './20261008_173232_media_drop_old_thumbnail';
 import * as migration_20261012_073543_taxonomy_skills_locations from './20261012_073543_taxonomy_skills_locations';
+import * as migration_20261012_083440_jobs_search_text from './20261012_083440_jobs_search_text';
 
 export const migrations = [
   {
@@ -22,6 +23,11 @@ export const migrations = [
   {
     up: migration_20261012_073543_taxonomy_skills_locations.up,
     down: migration_20261012_073543_taxonomy_skills_locations.down,
-    name: '20261012_073543_taxonomy_skills_locations'
+    name: '20261012_073543_taxonomy_skills_locations',
+  },
+  {
+    up: migration_20261012_083440_jobs_search_text.up,
+    down: migration_20261012_083440_jobs_search_text.down,
+    name: '20261012_083440_jobs_search_text'
   },
 ];

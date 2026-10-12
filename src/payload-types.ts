@@ -328,6 +328,7 @@ export interface Job {
   experienceLevel?: ('junior' | 'mid' | 'senior' | 'lead') | null;
   contentLanguage?: ('en' | 'fr' | 'ar') | null;
   status: 'draft' | 'published' | 'closed';
+  searchText?: string | null;
   publishedAt?: string | null;
   expiresAt?: string | null;
   updatedAt: string;
@@ -776,6 +777,7 @@ export interface JobsSelect<T extends boolean = true> {
   experienceLevel?: T;
   contentLanguage?: T;
   status?: T;
+  searchText?: T;
   publishedAt?: T;
   expiresAt?: T;
   updatedAt?: T;

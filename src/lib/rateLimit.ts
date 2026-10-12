@@ -10,6 +10,8 @@ export const RATE_LIMITS = {
   register: { limit: 5, windowMs: 60 * 60_000 },
   forgotPassword: { limit: 5, windowMs: 60 * 60_000 },
   apply: { limit: 20, windowMs: 60 * 60_000 },
+  // Live search fires while typing (debounced): generous, but stops scripted scraping
+  suggest: { limit: 120, windowMs: 60_000 },
 } as const
 
 // Returns true if the action may proceed, false if the caller is over the limit.

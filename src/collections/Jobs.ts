@@ -9,6 +9,7 @@ import {
 import { checkRole } from '@/access/checkRole'
 import { isAdminOrEmployer } from '@/access/isAdminOrEmployer'
 import { canReadJobs, isAdminOrCompanyOwner } from '@/access/jobs'
+import { fillJobSearchText } from '@/hooks/jobSearchText'
 import { revalidateDeletedJob, revalidateJob } from '@/hooks/revalidateJob'
 import { uniqueSlug } from '@/hooks/uniqueSlug'
 import { relationId } from '@/lib/relationId'
@@ -86,7 +87,7 @@ export const Jobs: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [checkCompanyOwnership, uniqueSlug('title')],
-    beforeChange: [validateJob, setPublishedAt],
+    beforeChange: [validateJob, setPublishedAt, fillJobSearchText],
     afterChange: [revalidateJob],
     afterDelete: [revalidateDeletedJob],
   },
@@ -188,6 +189,8 @@ export const Jobs: CollectionConfig = {
       ],
       admin: { position: 'sidebar' },
     },
+    // Filled by a hook: title, company, skills and city in every spelling (live search)
+    { name: 'searchText', type: 'text', index: true, admin: { readOnly: true, hidden: true } },
     {
       name: 'publishedAt',
       type: 'date',

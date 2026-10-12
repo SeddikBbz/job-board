@@ -11,6 +11,7 @@ import { isAdminOrEmployer } from '@/access/isAdminOrEmployer'
 import { isAdminOrOwner } from '@/access/isAdminOrOwner'
 import { setOwner } from '@/hooks/setOwner'
 import { uniqueSlug } from '@/hooks/uniqueSlug'
+import { refreshCompanyJobsSearchText } from '@/hooks/jobSearchText'
 
 // Employers may own only one company; admins are not limited.
 const oneCompanyPerEmployer: CollectionBeforeValidateHook = async ({ data, operation, req }) => {
@@ -55,6 +56,7 @@ export const Companies: CollectionConfig = {
     // Order matters: owner must be set before the one-company check and validation
     beforeValidate: [setOwner, oneCompanyPerEmployer, uniqueSlug('name')],
     beforeDelete: [preventDeleteWithJobs],
+    afterChange: [refreshCompanyJobsSearchText],
   },
   fields: [
     {
