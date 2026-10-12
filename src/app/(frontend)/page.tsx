@@ -189,7 +189,7 @@ export default async function HomePage() {
           <div aria-hidden className="absolute -end-16 -bottom-24 size-72 rounded-full bg-white/10 blur-2xl" />
           <div className="relative max-w-xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Hiring? Meet your next teammate here.</h2>
-            <p className="text-primary-foreground/80 mt-3 leading-7">
+            <p className="text-primary-foreground mt-3 leading-7">
               Create a company page, post a job in minutes and review applicants in one simple dashboard.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">

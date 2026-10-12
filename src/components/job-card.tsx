@@ -66,7 +66,7 @@ export function JobCard({ job }: { job: Job }) {
             </span>
           )}
           {jobSkills(job).slice(0, 4).map((skill) => (
-            <span key={skill.id} className="bg-muted text-muted-foreground rounded-md px-2 py-1 text-xs font-medium">
+            <span key={skill.id} className="bg-muted text-foreground/75 rounded-md px-2 py-1 text-xs font-medium">
               {skill.name}
             </span>
           ))}
