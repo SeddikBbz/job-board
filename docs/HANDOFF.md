@@ -33,7 +33,7 @@ A job board for Algeria: candidates search and apply with a resume, employers po
 | 3b | Class 17: installable mobile app (PWA) | Done, live. Manual check on real phones still to do. |
 | 4 | Skills and cities taxonomy (+ SkillPicker, backfill) | Done, live |
 | 5 | Live search and suggestions | Done, live |
-| 6 | **Class 10: trust, safety and legal** | **Code done and committed on `develop`. CI green. NOT deployed yet: it migrates production data (see section 6).** |
+| 6 | Class 10: trust, safety and legal | Done, live (deployed 2026-10-13; existing users marked verified). |
 | 7 | Class 16: operations baseline | Next |
 | then | BETA LAUNCH CHECKPOINT, Classes 6, 7, 8, 11, 12, 13, 9, 15, 14 | Not started |
 
@@ -120,7 +120,7 @@ git push                      # CI runs everything (lint, unit, component, int, 
 
 ## 6. Next steps (in order)
 
-1. **Deploy Class 10** after CI is green and the owner says "deploy". The migration adds the moderation statuses, report/pages/audit/settings tables and user fields, and marks all existing users verified. After deploy:
+1. **After the Class 10 deploy (done), the owner should:**
    - In Admin → Companies, tick **trusted** for companies you already know, otherwise their next jobs wait for review.
    - Check `/privacy`, `/terms`, `/cookies` and fill in the `[placeholders]` in Admin → Content → Pages.
    - Check Admin → Settings → Site settings (spam phrases, limits, log retention).
