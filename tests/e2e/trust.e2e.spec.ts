@@ -30,7 +30,8 @@ test('employer posts, admin approves, the job goes public and into suggestions',
   await adminPage.goto('/dashboard/moderation')
   const item = adminPage.getByTestId('review-item').filter({ hasText: jobTitle })
   await item.getByRole('button', { name: 'Approve', exact: true }).click()
-  await expect(item.getByText('Job approved and published.')).toBeVisible()
+  // Approved jobs leave the queue
+  await expect(item).toHaveCount(0)
 
   await expect
     .poll(async () => (await (await adminPage.request.get(`/next/suggest?q=${encodeURIComponent(jobTitle.slice(0, 40))}`)).json()).jobs.length)
@@ -66,11 +67,10 @@ test('anyone can report a job in two clicks; the dialog closes with Escape', asy
 })
 
 test('legal pages are linked from the footer and the sign-up form', async ({ page }) => {
-  await page.goto('/')
-  for (const name of ['Privacy', 'Terms', 'Cookies']) {
+  for (const [name, title] of [['Privacy', 'Privacy policy'], ['Terms', 'Terms of use'], ['Cookies', 'Cookie policy']]) {
+    await page.goto('/')
     await page.getByRole('navigation', { name: 'Legal' }).getByRole('link', { name }).click()
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await page.goBack()
+    await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible()
   }
   await page.goto('/register')
   await expect(page.getByRole('link', { name: 'terms', exact: true })).toHaveAttribute('href', '/terms')
