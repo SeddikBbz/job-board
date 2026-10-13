@@ -60,7 +60,14 @@ export function SiteFooter() {
       </Container>
       <div className="border-t">
         <Container className="text-muted-foreground py-6 text-xs">
-          <p>© {new Date().getFullYear()} JobBoard. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p>© {new Date().getFullYear()} JobBoard. All rights reserved.</p>
+            <nav aria-label="Legal" className="flex gap-4">
+              <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
+              <Link href="/terms" className="hover:text-foreground">Terms</Link>
+              <Link href="/cookies" className="hover:text-foreground">Cookies</Link>
+            </nav>
+          </div>
         </Container>
       </div>
     </footer>

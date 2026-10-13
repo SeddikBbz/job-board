@@ -1,4 +1,4 @@
-import { Briefcase, ExternalLink, MapPin, Users } from 'lucide-react'
+import { BadgeCheck, Briefcase, ExternalLink, MapPin, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
@@ -41,7 +41,15 @@ export default async function CompanyPage({ params }: Props) {
           <div className="-mt-12 flex flex-col gap-5 sm:flex-row sm:items-end">
             <CompanyLogo company={company} size={96} className="bg-background rounded-2xl border-4 border-white shadow-md" />
             <div className="min-w-0 flex-1">
-              <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
+              <h1 className="flex flex-wrap items-center gap-2 text-3xl font-bold tracking-tight">
+                {company.name}
+                {/* Set by an admin after checking the company is real */}
+                {company.verified && (
+                  <span className="bg-secondary text-secondary-foreground inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                    <BadgeCheck className="size-3.5" aria-hidden /> Verified company
+                  </span>
+                )}
+              </h1>
               <ul className="text-muted-foreground mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm">
                 {company.location && (
                   <li className="inline-flex items-center gap-1.5">

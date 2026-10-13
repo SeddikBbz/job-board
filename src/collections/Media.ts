@@ -2,10 +2,10 @@ import { APIError, type CollectionBeforeOperationHook, type CollectionConfig, ty
 import sharp from 'sharp'
 
 import { isAdminOrOwner } from '@/access/isAdminOrOwner'
-import { isLoggedIn } from '@/access/isLoggedIn'
 import { ownerField } from '@/fields/owner'
 import { setOwner } from '@/hooks/setOwner'
 import { ACCEPTED_IMAGE_TYPES, checkImage, MAX_IMAGE_SIDE } from '@/lib/validation/media'
+import { isVerifiedUser } from '@/access/isVerified'
 
 // WebP is much smaller than JPEG/PNG and keeps transparency (logos)
 const webp: ImageUploadFormatOptions = { format: 'webp', options: { quality: 80 } }
@@ -31,7 +31,8 @@ export const Media: CollectionConfig = {
   slug: 'media',
   access: {
     read: () => true,
-    create: isLoggedIn,
+    // Uploading needs a confirmed email
+    create: isVerifiedUser,
     update: isAdminOrOwner,
     delete: isAdminOrOwner,
   },

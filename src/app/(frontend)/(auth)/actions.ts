@@ -5,7 +5,10 @@ import { login, logout } from '@payloadcms/next/auth'
 import { redirect } from 'next/navigation'
 import { ValidationError } from 'payload'
 
-import { safeRedirectPath } from '@/lib/auth'
+import { checkDevice, sendVerificationEmail, trustDevice } from '@/lib/accountSecurity'
+import { getCurrentUser, safeRedirectPath } from '@/lib/auth'
+import { getDeviceId } from '@/lib/device'
+import { TERMS_VERSION } from '@/lib/legal'
 import { getPayloadClient } from '@/lib/payload'
 import { clientIp, rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
 import { reportUnexpectedError } from '@/lib/reportError'
@@ -33,12 +36,21 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   if (!(await verifyTurnstile(raw.turnstileToken, ip))) return { ...humanCheckFailed, values }
 
   const payload = await getPayloadClient()
+  let userId: number
   try {
     // Public signup: access control applies, and the protectRole hook blocks "admin"
-    await payload.create({
+    const user = await payload.create({
       collection: 'users',
       data: { name: parsed.data.name, email: parsed.data.email, password: parsed.data.password, role: parsed.data.role },
       overrideAccess: false,
+    })
+    userId = user.id
+    // Trusted server step: record which terms were accepted (not writable by the visitor)
+    await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: { termsAcceptedAt: new Date().toISOString(), termsVersion: TERMS_VERSION },
+      overrideAccess: true,
     })
   } catch (error) {
     // Payload reports a duplicate email as a ValidationError on the email field
@@ -48,6 +60,9 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     return { error: 'Could not create your account. Please try again.', values }
   }
 
+  // The browser used to sign up is trusted; the confirmation link goes out by email
+  await trustDevice(payload, userId, await getDeviceId())
+  await sendVerificationEmail(payload, userId)
   await login({ collection: 'users', config, email: parsed.data.email, password: parsed.data.password })
   // Back to where the visitor was going (e.g. a job they wanted to apply to), same-site only
   redirect(safeRedirectPath(raw.next))
@@ -63,10 +78,34 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   if (!rateLimit('login', ip)) return { error: TOO_MANY_REQUESTS, values }
   if (!(await verifyTurnstile(raw.turnstileToken, ip))) return { ...humanCheckFailed, values }
 
+  const payload = await getPayloadClient()
+  let userId: number
   try {
-    await login({ collection: 'users', config, ...parsed.data })
+    // Check the password first without signing in (still counts towards the lockout)
+    const result = await payload.login({ collection: 'users', data: { email: parsed.data.email, password: parsed.data.password } })
+    if (!result.user || result.user.banned) throw new Error('not allowed')
+    userId = result.user.id
   } catch {
     // Same message for unknown email, wrong password and locked account: don't leak which one
+    return { error: 'Invalid email or password.', values }
+  }
+
+  // A browser this account hasn't used before needs the code we email
+  const device = await checkDevice(payload, userId, await getDeviceId(), parsed.data.code)
+  if (!device.ok) {
+    const messages = {
+      'code-sent': 'We sent a 6-digit code to your email. Enter it to finish signing in.',
+      'code-recently-sent': 'Enter the 6-digit code we just emailed you.',
+      'wrong-code': 'That code is not right. Check the latest email and try again.',
+      'expired-code': 'This code has expired. Sign in again to get a new one.',
+    } as const
+    const isError = device.reason === 'wrong-code' || device.reason === 'expired-code'
+    return { needsCode: device.reason !== 'expired-code', values, ...(isError ? { error: messages[device.reason] } : { success: messages[device.reason] }) }
+  }
+
+  try {
+    await login({ collection: 'users', config, email: parsed.data.email, password: parsed.data.password })
+  } catch {
     return { error: 'Invalid email or password.', values }
   }
 
@@ -82,7 +121,9 @@ export async function logoutAction() {
 export async function forgotPasswordAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = forgotPasswordSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
-  if (!rateLimit('forgotPassword', await clientIp())) return { error: TOO_MANY_REQUESTS }
+  const ip = await clientIp()
+  if (!rateLimit('forgotPassword', ip)) return { error: TOO_MANY_REQUESTS }
+  if (!(await verifyTurnstile(formData.get('turnstileToken'), ip))) return humanCheckFailed
 
   const payload = await getPayloadClient()
   try {
@@ -115,4 +156,13 @@ export async function resetPasswordAction(_prev: FormState, formData: FormData):
 
   await login({ collection: 'users', config, email, password: parsed.data.password })
   redirect('/dashboard')
+}
+
+// "Resend the link" in the dashboard banner (one email per minute at most)
+export async function resendVerificationAction(_prev: FormState): Promise<FormState> {
+  const user = await getCurrentUser()
+  if (!user) return { error: 'Please log in again.' }
+  if (user.emailVerified) return { success: 'Your email is already confirmed.' }
+  const sent = await sendVerificationEmail(await getPayloadClient(), user.id)
+  return sent ? { success: `We sent a new link to ${user.email}.` } : { error: 'Please wait a minute before asking for another link.' }
 }

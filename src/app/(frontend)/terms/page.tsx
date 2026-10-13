@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 
-import { LegalPlaceholder } from '@/components/legal-placeholder'
+import { LegalPage } from '@/components/legal-page'
 
 export const metadata: Metadata = { title: 'Terms of use' }
+// Refreshed within a minute after an admin edits the page
+export const revalidate = 60
 
 export default function TermsPage() {
-  return <LegalPlaceholder title="Terms of use" />
+  return <LegalPage slug="terms" />
 }

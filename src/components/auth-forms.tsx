@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 
 import {
   forgotPasswordAction,
@@ -38,13 +38,42 @@ function SubmitButton({ pending, children }: { pending: boolean; children: React
 export function LoginForm({ siteKey, next }: { siteKey: string; next?: string }) {
   const [state, action, pending] = useActionState(loginAction, initialState)
   const { formProps, errorsFor } = useFormFeedback(loginSchema.shape, state)
+  // Controlled, so a second step (code from a new browser) can resend them with the code
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  if (state.needsCode) {
+    return (
+      <form action={action} className="space-y-4" noValidate {...formProps}>
+        <FormMessage error={state.error} success={state.success} />
+        <input type="hidden" name="next" value={next ?? ''} />
+        <input type="hidden" name="email" value={email} />
+        <input type="hidden" name="password" value={password} />
+        <p className="text-muted-foreground text-sm">
+          This browser is new for <strong className="text-foreground">{email}</strong>, so we check it&apos;s really you.
+        </p>
+        <FormField
+          label="6-digit code"
+          name="code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="[0-9]{6}"
+          maxLength={6}
+          required
+          autoFocus
+          errors={errorsFor('code')}
+        />
+        <Turnstile siteKey={siteKey} resetKey={state} />
+        <SubmitButton pending={pending}>Confirm and log in</SubmitButton>
+      </form>
+    )
+  }
   return (
     <form action={action} className="space-y-4" noValidate {...formProps}>
       <FormMessage error={state.error} />
       <input type="hidden" name="next" value={next ?? ''} />
-      <FormField label="Email" name="email" type="email" autoComplete="email" required defaultValue={state.values?.email} errors={errorsFor('email')} />
+      <FormField label="Email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} errors={errorsFor('email')} />
       <div className="space-y-2">
-        <PasswordField label="Password" name="password" autoComplete="current-password" required errors={errorsFor('password')} />
+        <PasswordField label="Password" name="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} errors={errorsFor('password')} />
         <div className="text-end text-sm">
           <Link href="/forgot-password" className="text-primary hover:underline">
             Forgot your password?
@@ -138,7 +167,7 @@ export function RegisterForm({ siteKey, next, initialRole = 'candidate' }: { sit
   )
 }
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ siteKey }: { siteKey: string }) {
   const [state, action, pending] = useActionState(forgotPasswordAction, initialState)
   const { formProps, errorsFor } = useFormFeedback(forgotPasswordSchema.shape, state)
   if (state.success) return <FormMessage success={state.success} />
@@ -146,6 +175,7 @@ export function ForgotPasswordForm() {
     <form action={action} className="space-y-4" noValidate {...formProps}>
       <FormMessage error={state.error} />
       <FormField label="Email" name="email" type="email" autoComplete="email" required errors={errorsFor('email')} />
+      <Turnstile siteKey={siteKey} resetKey={state} />
       <SubmitButton pending={pending}>Send reset link</SubmitButton>
     </form>
   )

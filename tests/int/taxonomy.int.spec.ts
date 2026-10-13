@@ -20,7 +20,7 @@ beforeAll(async () => {
   await deleteTestData(payload, DOMAIN)
   employer = await payload.create({
     collection: 'users',
-    data: { email: `emp${DOMAIN}`, name: 'Tax Emp', role: 'employer', password: 'Password123!' },
+    data: { email: `emp${DOMAIN}`, name: 'Tax Emp', role: 'employer', password: 'Password123!', emailVerified: true },
     context: { ...testContext, skipRoleProtection: true },
   })
 })

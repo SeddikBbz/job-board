@@ -5,6 +5,7 @@ const STYLES: Record<string, string> = {
   draft: 'bg-zinc-100 text-zinc-700 border-zinc-200',
   published: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   closed: 'bg-zinc-100 text-zinc-700 border-zinc-200',
+  pending_review: 'bg-amber-50 text-amber-800 border-amber-200',
   // application statuses
   applied: 'bg-blue-50 text-blue-700 border-blue-200',
   reviewing: 'bg-amber-50 text-amber-800 border-amber-200',
@@ -14,6 +15,8 @@ const STYLES: Record<string, string> = {
   withdrawn: 'bg-zinc-100 text-zinc-700 border-zinc-200 line-through',
 }
 
+const LABELS: Record<string, string> = { pending_review: 'Waiting for review' }
+
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span
@@ -22,7 +25,7 @@ export function StatusBadge({ status }: { status: string }) {
         STYLES[status] ?? STYLES.draft,
       )}
     >
-      {status}
+      {LABELS[status] ?? status}
     </span>
   )
 }

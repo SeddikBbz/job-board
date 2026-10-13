@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { ForgotPasswordForm } from '@/components/auth-forms'
+import { getTurnstileSiteKey } from '@/lib/turnstile'
 
 export const metadata: Metadata = { title: 'Forgot password' }
 
@@ -12,7 +13,7 @@ export default function ForgotPasswordPage() {
       <p className="text-muted-foreground mt-1 mb-6 text-sm">
         Enter your email and we&apos;ll send you a link to choose a new one.
       </p>
-      <ForgotPasswordForm />
+      <ForgotPasswordForm siteKey={getTurnstileSiteKey()} />
       <p className="text-muted-foreground mt-6 text-center text-sm">
         <Link href="/login" className="text-primary font-medium hover:underline">
           Back to log in

@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation'
 import { Container } from '@/components/container'
 import { ApplyNowButton } from '@/components/apply-now-button'
 import { ApplySection } from '@/components/apply-section'
+import { ReportJob } from '@/components/report-job'
+import { getTurnstileSiteKey } from '@/lib/turnstile'
 import { CompanyLogo } from '@/components/company-logo'
 import { formatDate, formatSalary, JOB_TYPE_LABELS, timeAgo, WORK_MODE_LABELS } from '@/lib/format'
 import { jobPostingJsonLd, serializeJsonLd } from '@/lib/jobPostingJsonLd'
@@ -141,6 +143,9 @@ export default async function JobPage({ params }: Props) {
 
           <section id="apply" aria-label="Apply" className="scroll-mt-24">
             <ApplySection jobId={job.id} jobSlug={job.slug ?? ''} jobTitle={job.title} />
+            <div className="mt-3 flex justify-end">
+              <ReportJob jobId={job.id} siteKey={getTurnstileSiteKey()} />
+            </div>
           </section>
         </div>
 

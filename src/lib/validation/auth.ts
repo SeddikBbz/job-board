@@ -25,6 +25,13 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email,
   password: z.string().min(1, 'Enter your password.'),
+  // Second step on a new browser: the code we emailed
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, 'Enter the 6-digit code from the email.')
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
 })
 
 export const forgotPasswordSchema = z.object({ email })
@@ -46,4 +53,6 @@ export type FormState = {
   success?: string
   fieldErrors?: Record<string, string[] | undefined>
   values?: Record<string, string>
+  // Login on a new browser: show the code field
+  needsCode?: boolean
 }

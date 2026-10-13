@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 
+import { approveJob } from './db'
 import { login, logout, pdfFile, pickSkill, register, uniqueEmail } from './helpers'
 
 const MAILPIT = 'http://localhost:8025/api/v1'
@@ -30,7 +31,9 @@ test.describe.serial('job board', () => {
     await page.getByLabel('Expires on').fill(new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10))
     await page.getByRole('button', { name: 'Publish' }).click()
     await page.waitForURL('**/dashboard/jobs')
-    await expect(page.locator('tr', { hasText: jobTitle })).toContainText('published')
+    // The company isn't trusted yet, so the job waits for a moderator
+    await expect(page.locator('tr', { hasText: jobTitle })).toContainText('Waiting for review')
+    await approveJob(jobTitle)
   })
 
   test('candidate registers, logs in and applies', async ({ page }) => {

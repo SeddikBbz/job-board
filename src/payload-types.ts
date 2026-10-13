@@ -76,6 +76,9 @@ export interface Config {
     'skill-categories': SkillCategory;
     skills: Skill;
     locations: Location;
+    reports: Report;
+    pages: Page;
+    'audit-logs': AuditLog;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -93,6 +96,9 @@ export interface Config {
     'skill-categories': SkillCategoriesSelect<false> | SkillCategoriesSelect<true>;
     skills: SkillsSelect<false> | SkillsSelect<true>;
     locations: LocationsSelect<false> | LocationsSelect<true>;
+    reports: ReportsSelect<false> | ReportsSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    'audit-logs': AuditLogsSelect<false> | AuditLogsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -104,9 +110,11 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
+    'site-settings': SiteSetting;
     'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
@@ -152,6 +160,20 @@ export interface User {
   id: number;
   name: string;
   role: 'candidate' | 'employer' | 'admin';
+  emailVerified?: boolean | null;
+  emailVerifiedAt?: string | null;
+  verificationTokenHash?: string | null;
+  verificationExpires?: string | null;
+  verificationSentAt?: string | null;
+  knownDevices?: string[] | null;
+  loginCodeHash?: string | null;
+  loginCodeDevice?: string | null;
+  loginCodeExpires?: string | null;
+  loginCodeSentAt?: string | null;
+  loginCodeAttempts?: number | null;
+  banned?: boolean | null;
+  termsAcceptedAt?: string | null;
+  termsVersion?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -272,6 +294,11 @@ export interface Resume {
  */
 export interface Company {
   id: number;
+  trusted?: boolean | null;
+  /**
+   * Shows a "Verified company" badge.
+   */
+  verified?: boolean | null;
   name: string;
   /**
    * Generated from the name if left empty.
@@ -327,7 +354,12 @@ export interface Job {
   legacySkills?: string[] | null;
   experienceLevel?: ('junior' | 'mid' | 'senior' | 'lead') | null;
   contentLanguage?: ('en' | 'fr' | 'ar') | null;
-  status: 'draft' | 'published' | 'closed';
+  status: 'draft' | 'pending_review' | 'published' | 'closed' | 'rejected';
+  rejectionReason?: string | null;
+  /**
+   * Why the automatic checks sent this job to review.
+   */
+  moderationFlags?: string[] | null;
   searchText?: string | null;
   publishedAt?: string | null;
   expiresAt?: string | null;
@@ -403,6 +435,75 @@ export interface Application {
   resume: number | Resume;
   coverLetter?: string | null;
   status: 'applied' | 'reviewing' | 'interview' | 'rejected' | 'hired' | 'withdrawn';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports".
+ */
+export interface Report {
+  id: number;
+  target:
+    | {
+        relationTo: 'jobs';
+        value: number | Job;
+      }
+    | {
+        relationTo: 'companies';
+        value: number | Company;
+      }
+    | {
+        relationTo: 'users';
+        value: number | User;
+      };
+  reason: 'scam' | 'misleading' | 'discriminatory' | 'duplicate' | 'offensive' | 'other';
+  details?: string | null;
+  reporter?: (number | null) | User;
+  reporterKey?: string | null;
+  status?: ('open' | 'reviewing' | 'actioned' | 'dismissed') | null;
+  handledBy?: (number | null) | User;
+  resolutionNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-logs".
+ */
+export interface AuditLog {
+  id: number;
+  actor?: (number | null) | User;
+  action: string;
+  collection?: string | null;
+  documentId?: string | null;
+  summary?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -566,6 +667,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'locations';
         value: number | Location;
+      } | null)
+    | ({
+        relationTo: 'reports';
+        value: number | Report;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'audit-logs';
+        value: number | AuditLog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -616,6 +729,20 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  emailVerified?: T;
+  emailVerifiedAt?: T;
+  verificationTokenHash?: T;
+  verificationExpires?: T;
+  verificationSentAt?: T;
+  knownDevices?: T;
+  loginCodeHash?: T;
+  loginCodeDevice?: T;
+  loginCodeExpires?: T;
+  loginCodeSentAt?: T;
+  loginCodeAttempts?: T;
+  banned?: T;
+  termsAcceptedAt?: T;
+  termsVersion?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -745,6 +872,8 @@ export interface ResumesSelect<T extends boolean = true> {
  * via the `definition` "companies_select".
  */
 export interface CompaniesSelect<T extends boolean = true> {
+  trusted?: T;
+  verified?: T;
   name?: T;
   slug?: T;
   logo?: T;
@@ -777,6 +906,8 @@ export interface JobsSelect<T extends boolean = true> {
   experienceLevel?: T;
   contentLanguage?: T;
   status?: T;
+  rejectionReason?: T;
+  moderationFlags?: T;
   searchText?: T;
   publishedAt?: T;
   expiresAt?: T;
@@ -836,6 +967,46 @@ export interface LocationsSelect<T extends boolean = true> {
   isRemote?: T;
   order?: T;
   searchText?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports_select".
+ */
+export interface ReportsSelect<T extends boolean = true> {
+  target?: T;
+  reason?: T;
+  details?: T;
+  reporter?: T;
+  reporterKey?: T;
+  status?: T;
+  handledBy?: T;
+  resolutionNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  content?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "audit-logs_select".
+ */
+export interface AuditLogsSelect<T extends boolean = true> {
+  actor?: T;
+  action?: T;
+  collection?: T;
+  documentId?: T;
+  summary?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -913,6 +1084,36 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  moderation?: {
+    /**
+     * Jobs containing any of these are sent to review with the reason shown.
+     */
+    spamPhrases?: string[] | null;
+    freeEmailDomains?: string[] | null;
+    /**
+     * New jobs per company per day.
+     */
+    dailyJobLimit?: number | null;
+    /**
+     * Distinct reports that send a live job back to review.
+     */
+    reportThreshold?: number | null;
+  };
+  privacy?: {
+    /**
+     * How long traceability records are kept (deleted resumes, moderation). Confirm with your legal reviewer (law 18-07).
+     */
+    auditLogRetentionDays?: number | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs-stats".
  */
 export interface PayloadJobsStat {
@@ -928,6 +1129,28 @@ export interface PayloadJobsStat {
     | null;
   updatedAt?: string | null;
   createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  moderation?:
+    | T
+    | {
+        spamPhrases?: T;
+        freeEmailDomains?: T;
+        dailyJobLimit?: T;
+        reportThreshold?: T;
+      };
+  privacy?:
+    | T
+    | {
+        auditLogRetentionDays?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

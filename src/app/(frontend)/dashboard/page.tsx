@@ -3,7 +3,8 @@ import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { requireUser } from '@/lib/auth'
-import { getMyApplications, getMyCompany, getMyJobs } from '@/lib/dashboard'
+import { getMyApplications, getMyCompany, getMyJobs, getMyResumes } from '@/lib/dashboard'
+import { MyResumes } from '@/components/my-resumes'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -30,7 +31,12 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {user.role === 'candidate' && <CandidateOverview applications={await getMyApplications(user)} />}
+      {user.role === 'candidate' && (
+        <>
+          <CandidateOverview applications={await getMyApplications(user)} />
+          <MyResumes resumes={await getMyResumes(user)} />
+        </>
+      )}
       {user.role === 'employer' && <EmployerOverview user={user} />}
       {user.role === 'admin' && (
         <Button asChild>

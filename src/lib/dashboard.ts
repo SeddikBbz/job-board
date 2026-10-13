@@ -88,3 +88,18 @@ export async function getApplicants(user: User, jobId: number) {
   })
   return docs
 }
+
+// The candidate's own resumes (read access already limits this to theirs)
+export async function getMyResumes(user: User) {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'resumes',
+    where: { owner: { equals: user.id } },
+    sort: '-createdAt',
+    depth: 0,
+    limit: 50,
+    user,
+    overrideAccess: false,
+  })
+  return docs
+}

@@ -1,4 +1,4 @@
-import type { Access, CollectionConfig } from 'payload'
+import type { Access, CollectionBeforeChangeHook, CollectionConfig, Field } from 'payload'
 
 import { checkRole } from '@/access/checkRole'
 import { isAdmin } from '@/access/isAdmin'
@@ -12,6 +12,20 @@ import { resetPasswordEmail } from '@/lib/email/resetPassword'
 // GraphQL signups are only allowed for admins. (The admin panel's "create first user" screen
 // uses overrideAccess and is not affected.) The protectRole hook still restricts the role.
 const canCreateUser: Access = ({ req }) => req.payloadAPI === 'local' || checkRole(req.user, ['admin'])
+
+// Accounts created by an admin (admin panel or REST) are trusted: no verification email needed
+const verifyAdminCreated: CollectionBeforeChangeHook = ({ data, operation, req }) => {
+  if (operation === 'create' && checkRole(req.user, ['admin'])) {
+    return { ...data, emailVerified: true, emailVerifiedAt: new Date().toISOString() }
+  }
+  return data
+}
+
+// Only trusted server code (overrideAccess) and admins may change these
+const adminOnly = { create: isAdmin, update: isAdmin }
+// Secrets and device data: never returned by any API, only read by our server code
+const secret = (name: string, type: 'text' | 'date' | 'number' = 'text', extra: Partial<Field> = {}): Field =>
+  ({ name, type, hidden: true, ...extra }) as Field
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -39,7 +53,7 @@ export const Users: CollectionConfig = {
     delete: isAdmin,
   },
   hooks: {
-    beforeChange: [protectRole],
+    beforeChange: [protectRole, verifyAdminCreated],
   },
   fields: [
     // Email added by default
@@ -62,5 +76,23 @@ export const Users: CollectionConfig = {
         { label: 'Admin', value: 'admin' },
       ],
     },
+    // --- email verification (own flag: unverified users can sign in, but not apply/post/upload/report)
+    { name: 'emailVerified', type: 'checkbox', defaultValue: false, access: adminOnly, admin: { position: 'sidebar' } },
+    { name: 'emailVerifiedAt', type: 'date', access: adminOnly, admin: { position: 'sidebar', readOnly: true } },
+    secret('verificationTokenHash', 'text', { index: true }),
+    secret('verificationExpires', 'date'),
+    secret('verificationSentAt', 'date'),
+    // --- new-device sign-in check: hashes of this user's trusted browsers, and the pending code
+    secret('knownDevices', 'text', { hasMany: true } as Partial<Field>),
+    secret('loginCodeHash'),
+    secret('loginCodeDevice'),
+    secret('loginCodeExpires', 'date'),
+    secret('loginCodeSentAt', 'date'),
+    secret('loginCodeAttempts', 'number'),
+    // Set by an admin (from a report): the account can't sign in or create anything
+    { name: 'banned', type: 'checkbox', defaultValue: false, access: adminOnly, admin: { position: 'sidebar' } },
+    // --- terms accepted at sign-up (which version, and when)
+    { name: 'termsAcceptedAt', type: 'date', access: adminOnly, admin: { position: 'sidebar', readOnly: true } },
+    { name: 'termsVersion', type: 'text', access: adminOnly, admin: { position: 'sidebar', readOnly: true } },
   ],
 }

@@ -37,3 +37,18 @@ export const closeExpiredJobsTask: TaskConfig<CloseExpiredIO> = {
     return { output: { closed: result.docs.length } }
   },
 }
+
+type PurgeIO = { input: object; output: { deleted: number } }
+
+// Deletes traceability records older than the retention period set in Site settings
+export const purgeAuditLogsTask: TaskConfig<PurgeIO> = {
+  slug: 'purgeAuditLogs',
+  schedule: [{ cron: '0 30 3 * * *', queue: 'default' }],
+  handler: async ({ req }) => {
+    const settings = await req.payload.findGlobal({ slug: 'site-settings', depth: 0, req }).catch(() => null)
+    const days = settings?.privacy?.auditLogRetentionDays ?? 1095
+    const before = new Date(Date.now() - days * 86_400_000).toISOString()
+    const result = await req.payload.delete({ collection: 'audit-logs', where: { createdAt: { less_than: before } }, overrideAccess: true, req })
+    return { output: { deleted: result.docs.length } }
+  },
+}

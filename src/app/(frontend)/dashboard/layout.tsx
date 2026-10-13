@@ -1,5 +1,7 @@
 import { Container } from '@/components/container'
 import { DashboardMobileNav, DashboardNav } from '@/components/dashboard-nav'
+import { VerifyEmailBanner } from '@/components/verify-email-banner'
+import { isVerified } from '@/access/isVerified'
 import { getCurrentUser } from '@/lib/auth'
 
 const ROLE_LABELS = { admin: 'Admin', employer: 'Employer', candidate: 'Candidate' } as const
@@ -25,7 +27,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </aside>
         {/* min-w-0 lets wide tables scroll inside their own box instead of widening the page */}
-        <div className="min-w-0">{children}</div>
+        <div className="min-w-0">
+          {!isVerified(user) && <VerifyEmailBanner email={user.email} />}
+          {children}
+        </div>
       </Container>
     </div>
   )

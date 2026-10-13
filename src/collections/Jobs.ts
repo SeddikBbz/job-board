@@ -7,12 +7,16 @@ import {
 } from 'payload'
 
 import { checkRole } from '@/access/checkRole'
-import { isAdminOrEmployer } from '@/access/isAdminOrEmployer'
 import { canReadJobs, isAdminOrCompanyOwner } from '@/access/jobs'
 import { fillJobSearchText } from '@/hooks/jobSearchText'
+import { moderateJob, moderationEmails } from '@/hooks/moderateJob'
 import { revalidateDeletedJob, revalidateJob } from '@/hooks/revalidateJob'
 import { uniqueSlug } from '@/hooks/uniqueSlug'
 import { relationId } from '@/lib/relationId'
+import { isVerifiedEmployerOrAdmin } from '@/access/isVerified'
+
+// Field-level: only admins write moderation fields (the hooks run as trusted code)
+const isAdminField = ({ req }: { req: { user?: unknown } }) => checkRole(req.user as never, ['admin'])
 
 // Employers can only attach jobs to a company they own. If none is sent on create, use theirs.
 const checkCompanyOwnership: CollectionBeforeValidateHook = async ({ data, operation, req }) => {
@@ -81,14 +85,16 @@ export const Jobs: CollectionConfig = {
   },
   access: {
     read: canReadJobs,
-    create: isAdminOrEmployer,
+    // Posting needs a confirmed email
+    create: isVerifiedEmployerOrAdmin,
     update: isAdminOrCompanyOwner,
     delete: isAdminOrCompanyOwner,
   },
   hooks: {
     beforeValidate: [checkCompanyOwnership, uniqueSlug('title')],
-    beforeChange: [validateJob, setPublishedAt, fillJobSearchText],
-    afterChange: [revalidateJob],
+    // moderateJob decides the real status, so it runs before setPublishedAt
+    beforeChange: [validateJob, moderateJob, setPublishedAt, fillJobSearchText],
+    afterChange: [revalidateJob, moderationEmails],
     afterDelete: [revalidateDeletedJob],
   },
   fields: [
@@ -184,10 +190,26 @@ export const Jobs: CollectionConfig = {
       index: true,
       options: [
         { label: 'Draft', value: 'draft' },
+        { label: 'Waiting for review', value: 'pending_review' },
         { label: 'Published', value: 'published' },
         { label: 'Closed', value: 'closed' },
+        { label: 'Rejected', value: 'rejected' },
       ],
       admin: { position: 'sidebar' },
+    },
+    // Moderation: written by hooks (trusted code) and admins; employers only read them
+    {
+      name: 'rejectionReason',
+      type: 'textarea',
+      access: { create: isAdminField, update: isAdminField },
+      admin: { position: 'sidebar', condition: (d) => d?.status === 'rejected' },
+    },
+    {
+      name: 'moderationFlags',
+      type: 'text',
+      hasMany: true,
+      access: { create: isAdminField, update: isAdminField },
+      admin: { position: 'sidebar', readOnly: true, description: 'Why the automatic checks sent this job to review.' },
     },
     // Filled by a hook: title, company, skills and city in every spelling (live search)
     { name: 'searchText', type: 'text', index: true, admin: { readOnly: true, hidden: true } },

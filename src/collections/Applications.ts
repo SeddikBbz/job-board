@@ -9,10 +9,10 @@ import {
 import { canReadApplications, canUpdateApplications } from '@/access/applications'
 import { checkRole } from '@/access/checkRole'
 import { isAdmin } from '@/access/isAdmin'
-import { isCandidate } from '@/access/isCandidate'
 import { isLoggedIn } from '@/access/isLoggedIn'
 import { applicationEmails } from '@/hooks/applicationEmails'
 import { relationId } from '@/lib/relationId'
+import { isVerifiedCandidate } from '@/access/isVerified'
 
 export const WITHDRAWABLE_STATUSES = ['applied', 'reviewing']
 
@@ -101,7 +101,8 @@ export const Applications: CollectionConfig = {
   },
   access: {
     read: canReadApplications,
-    create: isCandidate,
+    // Applying needs a confirmed email
+    create: isVerifiedCandidate,
     update: canUpdateApplications,
     delete: isAdmin,
   },

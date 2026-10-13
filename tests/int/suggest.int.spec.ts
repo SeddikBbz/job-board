@@ -21,7 +21,7 @@ beforeAll(async () => {
   await seedTaxonomy(payload)
   const owner = await payload.create({
     collection: 'users',
-    data: { email: `emp${DOMAIN}`, name: 'Sug Emp', role: 'employer', password: 'Password123!' },
+    data: { email: `emp${DOMAIN}`, name: 'Sug Emp', role: 'employer', password: 'Password123!', emailVerified: true },
     context: { ...testContext, skipRoleProtection: true },
   })
   const company = await payload.create({ collection: 'companies', data: { name: `${WORD} Co`, owner: owner.id }, context: testContext })

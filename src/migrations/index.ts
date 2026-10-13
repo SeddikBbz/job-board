@@ -3,6 +3,7 @@ import * as migration_20261008_173203_media_add_sizes_and_kind from './20261008_
 import * as migration_20261008_173232_media_drop_old_thumbnail from './20261008_173232_media_drop_old_thumbnail';
 import * as migration_20261012_073543_taxonomy_skills_locations from './20261012_073543_taxonomy_skills_locations';
 import * as migration_20261012_083440_jobs_search_text from './20261012_083440_jobs_search_text';
+import * as migration_20261013_090927_trust_safety_legal from './20261013_090927_trust_safety_legal';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20261012_083440_jobs_search_text.up,
     down: migration_20261012_083440_jobs_search_text.down,
-    name: '20261012_083440_jobs_search_text'
+    name: '20261012_083440_jobs_search_text',
+  },
+  {
+    up: migration_20261013_090927_trust_safety_legal.up,
+    down: migration_20261013_090927_trust_safety_legal.down,
+    name: '20261013_090927_trust_safety_legal'
   },
 ];

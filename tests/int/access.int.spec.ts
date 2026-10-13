@@ -27,7 +27,7 @@ beforeAll(async () => {
   const makeUser = (name: string, role: User['role']) =>
     payload.create({
       collection: 'users',
-      data: { email: `${name}${DOMAIN}`, name, role, password: 'Password123!' },
+      data: { email: `${name}${DOMAIN}`, name, role, password: 'Password123!', emailVerified: true },
       context: { ...testContext, skipRoleProtection: true },
     })
   ;[empA, empB, candA, candB] = await Promise.all([
@@ -65,7 +65,7 @@ describe('users', () => {
   it('public signup can never create an admin', async () => {
     const user = await payload.create({
       collection: 'users',
-      data: { email: `sneaky${DOMAIN}`, name: 'Sneaky', role: 'admin', password: 'Password123!' },
+      data: { email: `sneaky${DOMAIN}`, name: 'Sneaky', role: 'admin', password: 'Password123!', emailVerified: true },
       overrideAccess: false,
       context: testContext,
     })

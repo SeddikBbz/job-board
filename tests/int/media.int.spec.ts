@@ -25,7 +25,7 @@ beforeAll(async () => {
   const makeUser = (name: string) =>
     payload.create({
       collection: 'users',
-      data: { email: `${name}${DOMAIN}`, name, role: 'employer', password: 'Password123!' },
+      data: { email: `${name}${DOMAIN}`, name, role: 'employer', password: 'Password123!', emailVerified: true },
       context: { ...testContext, skipRoleProtection: true },
     })
   ;[owner, other] = await Promise.all([makeUser('owner'), makeUser('other')])

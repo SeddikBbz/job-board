@@ -59,6 +59,9 @@ export const Companies: CollectionConfig = {
     afterChange: [refreshCompanyJobsSearchText],
   },
   fields: [
+    // Admin only. Trusted: jobs publish without review. Verified: a badge on the company.
+    { name: 'trusted', type: 'checkbox', defaultValue: false, access: { create: isAdmin, update: isAdmin }, admin: { position: 'sidebar' } },
+    { name: 'verified', type: 'checkbox', defaultValue: false, access: { create: isAdmin, update: isAdmin }, admin: { position: 'sidebar', description: 'Shows a "Verified company" badge.' } },
     {
       name: 'name',
       type: 'text',

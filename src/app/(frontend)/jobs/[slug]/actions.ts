@@ -1,13 +1,20 @@
 'use server'
 
 import { APIError } from 'payload'
+import { z } from 'zod'
+
+import { REPORT_REASONS } from '@/lib/reportReasons'
+import { getDeviceId } from '@/lib/device'
+import { sha256 } from '@/lib/tokens'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 import { getCurrentUser } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
-import { rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
+import { clientIp, rateLimit, TOO_MANY_REQUESTS } from '@/lib/rateLimit'
 import { reportUnexpectedError } from '@/lib/reportError'
 import { applySchema, MAX_RESUME_MB } from '@/lib/validation/application'
 import type { FormState } from '@/lib/validation/auth'
+import { isVerified, VERIFY_FIRST } from '@/access/isVerified'
 
 // Known errors (validation, duplicates…) are shown as-is; anything else is logged and replaced by a friendly message
 const publicMessage = (error: unknown, fallback: string) => {
@@ -23,6 +30,7 @@ export async function applyToJob(_prev: FormState, formData: FormData): Promise<
   const user = await getCurrentUser()
   if (!user) return { error: 'Please log in to apply.' }
   if (user.role !== 'candidate') return { error: 'Only candidate accounts can apply to jobs.' }
+  if (!isVerified(user)) return { error: VERIFY_FIRST }
   if (!rateLimit('apply', String(user.id))) return { error: TOO_MANY_REQUESTS, values: { coverLetter } }
 
   const parsed = applySchema.safeParse({
@@ -96,4 +104,50 @@ export async function applyToJob(_prev: FormState, formData: FormData): Promise<
   }
 
   return { success: 'Your application was sent! The employer will review it soon.' }
+}
+
+const reportSchema = z.object({
+  jobId: z.coerce.number().int().positive(),
+  reason: z.enum(REPORT_REASONS.map((r) => r.value) as [string, ...string[]], { message: 'Choose a reason.' }),
+  details: z.string().trim().max(2000).optional(),
+})
+
+// "Report this job": anyone can report (logged-in users need a confirmed email). One open
+// report per person per job; the human check and a rate limit stop scripted abuse.
+export async function reportJob(_prev: FormState, formData: FormData): Promise<FormState> {
+  const raw = Object.fromEntries(formData)
+  const parsed = reportSchema.safeParse(raw)
+  if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors }
+  const ip = await clientIp()
+  if (!rateLimit('report', ip)) return { error: TOO_MANY_REQUESTS }
+  if (!(await verifyTurnstile(raw.turnstileToken, ip))) return { error: 'Please complete the "I am human" check and try again.' }
+
+  const user = await getCurrentUser()
+  if (user && !isVerified(user)) return { error: VERIFY_FIRST }
+
+  const payload = await getPayloadClient()
+  // Only public jobs can be reported (public read rules)
+  const job = await payload.findByID({ collection: 'jobs', id: parsed.data.jobId, depth: 0, overrideAccess: false, disableErrors: true })
+  if (!job) return { error: 'This job is no longer available.' }
+
+  const reporterKey = sha256(user ? `user:${user.id}` : `device:${await getDeviceId()}`)
+  const { totalDocs } = await payload.count({
+    collection: 'reports',
+    where: { reporterKey: { equals: reporterKey }, 'target.value': { equals: job.id }, status: { in: ['open', 'reviewing'] } },
+  })
+  if (totalDocs === 0) {
+    // Trusted server code: the reports collection itself can't be written through the API
+    await payload.create({
+      collection: 'reports',
+      data: {
+        target: { relationTo: 'jobs', value: job.id },
+        reason: parsed.data.reason as (typeof REPORT_REASONS)[number]['value'],
+        details: parsed.data.details,
+        reporter: user?.id,
+        reporterKey,
+      },
+      overrideAccess: true,
+    })
+  }
+  return { success: 'Thanks. A moderator will look at this job.' }
 }

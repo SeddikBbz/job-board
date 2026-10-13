@@ -17,6 +17,7 @@ import {
   withdrawSchema,
 } from '@/lib/validation/dashboard'
 import type { User } from '@/payload-types'
+import { isVerified, VERIFY_FIRST } from '@/access/isVerified'
 
 // Every action re-checks the session and role, and every write runs as the user
 // with access control on, so Payload has the final say on what is allowed.
@@ -48,6 +49,7 @@ export async function saveCompany(_prev: FormState, formData: FormData): Promise
   const asUser = { user, overrideAccess: false } as const
   try {
     let logoId: number | undefined
+    if (logo && !isVerified(user)) return { error: VERIFY_FIRST, values }
     if (logo) {
       const media = await payload.create({
         collection: 'media',
@@ -86,6 +88,7 @@ export async function saveCompany(_prev: FormState, formData: FormData): Promise
 export async function saveJob(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await currentEmployer()
   if (!user) return { error: 'Only employers can post jobs.' }
+  if (!isVerified(user)) return { error: VERIFY_FIRST }
 
   // Skills arrive as one form value per chosen skill
   const skills = formData.getAll('skills').map(String)
@@ -137,18 +140,20 @@ export async function setJobStatus(_prev: FormState, formData: FormData): Promis
 
   const payload = await getPayloadClient()
   try {
-    await payload.update({
+    const job = await payload.update({
       collection: 'jobs',
       id: parsed.data.jobId,
       data: { status: parsed.data.status },
       user,
       overrideAccess: false,
     })
+    revalidatePath('/dashboard/jobs')
+    // Untrusted companies' jobs wait for a moderator instead of going live
+    if (job.status === 'pending_review') return { success: 'Sent for review. We will email you when it is live.' }
+    return { success: job.status === 'published' ? 'Job published.' : 'Job closed.' }
   } catch (error) {
     return { error: errorMessage(error, 'Could not update the job.') }
   }
-  revalidatePath('/dashboard/jobs')
-  return { success: parsed.data.status === 'published' ? 'Job published.' : 'Job closed.' }
 }
 
 export async function updateApplicationStatus(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -199,4 +204,22 @@ export async function withdrawApplication(_prev: FormState, formData: FormData):
   revalidatePath('/dashboard/applications')
   revalidatePath('/dashboard')
   return { success: 'Application withdrawn.' }
+}
+
+// Candidates control their data: delete one of their resumes (the file is removed; only a
+// traceability entry without the content is kept, see the audit log)
+export async function deleteResume(_prev: FormState, formData: FormData): Promise<FormState> {
+  const user = await getCurrentUser()
+  if (!user) return { error: 'Please log in again.' }
+  const id = Number(formData.get('resumeId'))
+  if (!Number.isInteger(id) || id <= 0) return { error: 'Invalid request.' }
+  const payload = await getPayloadClient()
+  try {
+    // Access control only allows deleting your own resumes
+    await payload.delete({ collection: 'resumes', id, user, overrideAccess: false })
+  } catch (error) {
+    return { error: errorMessage(error, 'Could not delete this resume.') }
+  }
+  revalidatePath('/dashboard')
+  return { success: 'Resume deleted.' }
 }

@@ -66,6 +66,10 @@ export default async function MyJobsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={job.status} />
+                      {/* Why a moderator didn't publish it, so the employer can fix it and resubmit */}
+                      {job.status === 'rejected' && job.rejectionReason && (
+                        <p className="text-destructive mt-1 max-w-56 text-xs">{job.rejectionReason}</p>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <Link href={`/dashboard/jobs/${job.id}/applicants`} className="text-primary hover:underline">
@@ -81,6 +85,7 @@ export default async function MyJobsPage() {
                         {job.status === 'draft' && <JobStatusButton jobId={job.id} status="published" label="Publish" />}
                         {job.status === 'published' && <JobStatusButton jobId={job.id} status="closed" label="Close" />}
                         {job.status === 'closed' && <JobStatusButton jobId={job.id} status="published" label="Reopen" />}
+                        {job.status === 'rejected' && <JobStatusButton jobId={job.id} status="published" label="Submit again" />}
                         <Button size="sm" variant="ghost" asChild>
                           <Link href={`/dashboard/jobs/${job.id}/edit`}>Edit</Link>
                         </Button>

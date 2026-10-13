@@ -13,9 +13,13 @@ import { Resumes } from './collections/Resumes'
 import { Companies } from './collections/Companies'
 import { Jobs } from './collections/Jobs'
 import { Locations, SkillCategories, Skills } from './collections/Taxonomy'
-import { seedTaxonomy } from './lib/taxonomy'
+import { SiteSettings } from './globals/SiteSettings'
+import { Reports } from './collections/Reports'
+import { Pages } from './collections/Pages'
+import { AuditLogs } from './collections/AuditLogs'
+import { seedLegalPages, seedTaxonomy } from './lib/taxonomy'
 import { Applications } from './collections/Applications'
-import { closeExpiredJobsTask, sendEmailTask } from './jobs/tasks'
+import { closeExpiredJobsTask, sendEmailTask, purgeAuditLogsTask } from './jobs/tasks'
 import { emailAdapter } from './lib/email/adapter'
 
 const filename = fileURLToPath(import.meta.url)
@@ -28,7 +32,8 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Resumes, Companies, Jobs, Applications, SkillCategories, Skills, Locations],
+  globals: [SiteSettings],
+  collections: [Users, Media, Resumes, Companies, Jobs, Applications, SkillCategories, Skills, Locations, Reports, Pages, AuditLogs],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -46,9 +51,10 @@ export default buildConfig({
   onInit: async (payload) => {
     const { totalDocs } = await payload.count({ collection: 'skills' })
     if (totalDocs === 0) await seedTaxonomy(payload)
+    await seedLegalPages(payload)
   },
   jobs: {
-    tasks: [sendEmailTask, closeExpiredJobsTask],
+    tasks: [sendEmailTask, closeExpiredJobsTask, purgeAuditLogsTask],
     access: {
       // GET /api/payload-jobs/run is called by Vercel Cron, which sends
       // "Authorization: Bearer <CRON_SECRET>". Admins may also trigger it.

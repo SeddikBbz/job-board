@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import sharp from 'sharp'
 
+import { approveJob } from './db'
 import { register, uniqueEmail } from './helpers'
 
 // A candidate avatar test is added with the settings page (Class 7), where avatars are uploaded.
@@ -27,6 +28,7 @@ test('employer uploads a logo and sees it on the job card and the company page',
   await page.getByLabel('Expires on').fill(new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10))
   await page.getByRole('button', { name: 'Publish' }).click()
   await page.waitForURL('**/dashboard/jobs')
+  await approveJob(jobTitle)
 
   // Job card in the public list
   await page.goto(`/jobs?q=${encodeURIComponent(jobTitle)}`)

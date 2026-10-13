@@ -1,6 +1,6 @@
 'use client'
 
-import { Briefcase, Building2, FileText, LayoutDashboard, Menu, Search, Shield } from 'lucide-react'
+import { Briefcase, Building2, FileText, Flag, LayoutDashboard, Menu, Search, Shield, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -22,6 +22,8 @@ const LINKS = {
   ],
   admin: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/moderation', label: 'Review queue', icon: ShieldCheck },
+    { href: '/dashboard/reports', label: 'Reports', icon: Flag },
     { href: '/admin', label: 'Admin panel', icon: Shield },
   ],
 } as const

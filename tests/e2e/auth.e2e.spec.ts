@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
-import { login, logout, PASSWORD, register, uniqueEmail, waitForHumanCheck } from './helpers'
+import { enterCodeIfAsked, login, logout, PASSWORD, register, uniqueEmail, waitForHumanCheck } from './helpers'
 
 test.describe.serial('sign in and sign up', () => {
   const candidate = { name: 'E2E Auth Candidate', email: uniqueEmail('auth'), role: 'candidate' as const }
@@ -66,6 +66,7 @@ test.describe.serial('sign in and sign up', () => {
     await page.getByLabel('Email').fill(candidate.email)
     await page.getByLabel('Password', { exact: true }).fill(PASSWORD)
     await page.getByRole('button', { name: 'Log in' }).click()
+    await enterCodeIfAsked(page, candidate.email)
     await page.waitForURL('**/dashboard/applications')
 
     // An outside address in ?next= is ignored
@@ -75,6 +76,7 @@ test.describe.serial('sign in and sign up', () => {
     await page.getByLabel('Email').fill(candidate.email)
     await page.getByLabel('Password', { exact: true }).fill(PASSWORD)
     await page.getByRole('button', { name: 'Log in' }).click()
+    await enterCodeIfAsked(page, candidate.email)
     await page.waitForURL((url) => url.pathname === '/dashboard')
   })
 })

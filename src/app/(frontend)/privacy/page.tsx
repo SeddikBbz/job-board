@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 
-import { LegalPlaceholder } from '@/components/legal-placeholder'
+import { LegalPage } from '@/components/legal-page'
 
 export const metadata: Metadata = { title: 'Privacy policy' }
+// Refreshed within a minute after an admin edits the page
+export const revalidate = 60
 
 export default function PrivacyPage() {
-  return <LegalPlaceholder title="Privacy policy" />
+  return <LegalPage slug="privacy" />
 }

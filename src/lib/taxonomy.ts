@@ -75,3 +75,17 @@ export async function seedTaxonomy(payload: Payload, req?: Partial<PayloadReques
     await payload.create({ collection: 'locations', data: l, req, context })
   }
 }
+
+// Creates the legal pages from the drafts when they don't exist yet (never overwrites edits)
+export async function seedLegalPages(payload: Payload, req?: Partial<PayloadRequest>) {
+  const { LEGAL_PAGES, blocksToRichText } = await import('@/data/legalPages')
+  for (const page of LEGAL_PAGES) {
+    const { totalDocs } = await payload.count({ collection: 'pages', where: { slug: { equals: page.slug } }, req })
+    if (totalDocs) continue
+    await payload.create({
+      collection: 'pages',
+      data: { slug: page.slug, title: page.title, content: blocksToRichText(page.blocks) as never },
+      req,
+    })
+  }
+}
