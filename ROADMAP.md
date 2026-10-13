@@ -21,6 +21,7 @@ Keep `FEATURES.md` in the same folder. Class numbers 1-9 are unchanged, so nothi
 | 5 | **5** Live search and suggestions | P0 | L | 4 | Yours |
 | 6 | **10** Trust, safety and legal | P0 | L | 3 | Mine |
 | 7 | **16** Operations baseline | P0 | M | none | Mine |
+| 7b | **18** Home wilaya: local jobs first and local job alerts | P1 | M | 4, 5, 10, 16 | Yours |
 | | **BETA LAUNCH CHECKPOINT** (see section 2) | | | | |
 | 8 | **6** BCOS branding | P1 | S | 1 | Yours |
 | 9 | **7** User settings | P1 | L | 2, 4 | Yours |
@@ -116,6 +117,51 @@ When the agent builds a class, it must also adjust earlier classes where listed.
 
 **Test gate:** full gate command, plus the manual install check.
 **Done when:** the site installs on Android and iOS, opens fullscreen with its own icon, shows a friendly offline page, and never caches private data.
+
+---
+
+## CLASS 18. Home wilaya: local jobs first and local job alerts (P1, M)
+
+**Goal:** a candidate tells us where they live once. Jobs in their wilaya then show up first in search and suggestions, and they are told when a new job opens there, if they want to be.
+
+**Depends on:** Class 4 (`locations` with the 58 wilayas), Class 5 (live search), Class 10 (verified emails), Class 16 (background jobs). Later merged into the Class 7 settings page (Profile tab) and the Class 12 alerts.
+
+### 18.1 Data
+
+- [ ] Add `homeWilaya` to `users`: relationship to `locations`, limited to Algerian wilayas (`country = Algeria` and `region = name`). Only the candidate (and admins) can read or change it; employers never see it.
+- [ ] Add `localJobAlerts` to `users`: `off` | `instant` | `daily` (default `daily`), plus `localAlertsLastSentAt`.
+- [ ] Add `wilaya` to `jobs` (relationship to `locations`), filled by a hook from `city`: the city itself when it is a wilaya, or the wilaya of the city (`region`) for cities like Bab Ezzouar → Algiers. Remote jobs have no wilaya. Migration backfills existing jobs.
+
+### 18.2 Registration and profile
+
+- [ ] Sign-up form (candidates only): "Wilaya of residence" select (58 wilayas, French and Arabic names searchable, optional with a short "why we ask" hint: "to show jobs near you first"). Saved by the register action, validated with Zod (must be a wilaya id).
+- [ ] Candidates who signed up before can set it from a dashboard card ("Where do you live? Get local jobs first") and later in Settings (Class 7).
+- [ ] Privacy policy: add the wilaya to "What we collect" and "Why we use it" (personal data under law 18-07, used only for ranking and alerts, editable and removable at any time).
+
+### 18.3 Local jobs first
+
+- [ ] Live suggestions (`/next/suggest`): when the visitor is a candidate with a home wilaya, jobs in that wilaya are listed first (then the others, as today), with a small "In your wilaya" label. Groups and limits stay the same; never show non-public jobs.
+- [ ] `/jobs` results: same ordering for logged-in candidates when no explicit sort or location filter is chosen; a "Near you" chip shows the rule and can be turned off (adds `location` filter or `sort=newest`).
+- [ ] Home page: a "Jobs in {wilaya}" section above "Latest jobs" when there are any.
+- [ ] Ranking runs on the server (the wilaya is never put in the URL or exposed to other users); suggestion responses for logged-in candidates are not shared-cached (`Cache-Control: private`).
+
+### 18.4 Local job alerts
+
+- [ ] When a job becomes **published** (after moderation) with a `wilaya`, candidates whose `homeWilaya` matches and `localJobAlerts = instant` get a short email ("New job in {wilaya}: {title} at {company}") with a link and a one-click "stop these emails" link.
+- [ ] `daily`: a scheduled task (`send-local-alerts`, jobs queue, idempotent) sends one digest per candidate with up to 10 new jobs in their wilaya since `localAlertsLastSentAt`; nothing is sent when there are none.
+- [ ] Only verified, non-banned candidates; never more than one instant email per job per candidate; respects notification preferences (Class 7) once they exist.
+- [ ] In-app: a dismissible banner on the candidate dashboard "3 new jobs in {wilaya} this week" linking to `/jobs?location={wilaya}` (later the Class 8 notification bell).
+- [ ] Unsubscribe links are signed tokens (same helper as Class 12 alerts) and include the `List-Unsubscribe` header.
+
+### 18.5 Tests
+
+- [ ] **Unit:** city → wilaya mapping (wilaya itself, a city of a wilaya, Remote → none); ranking helper (home wilaya first, stable order otherwise); digest builder (limit 10, skips empty).
+- [ ] **Integration:** `homeWilaya` is readable only by its owner and admins (never by an employer); a job published in Oran triggers one instant alert for an Oran candidate with `instant`, none for `off`, none for an unverified or banned candidate, none for a pending or rejected job; the daily task is safe to run twice; the migration backfill fills `wilaya` for existing jobs.
+- [ ] **E2E:** register as a candidate choosing Oran; an employer's job in Oran is approved; the candidate sees it first in suggestions with "In your wilaya", and receives the email in Mailpit; the stop link works.
+- [ ] **Accessibility:** the wilaya select has a label and works with the keyboard; the "In your wilaya" label is not color-only.
+
+**Test gate:** full gate command.
+**Done when:** a candidate who chose a wilaya at sign-up sees local jobs first and gets told about new ones there (or not, if they turn it off), and nobody else can see where they live.
 
 ---
 

@@ -35,6 +35,7 @@ A job board for Algeria: candidates search and apply with a resume, employers po
 | 5 | Live search and suggestions | Done, live |
 | 6 | Class 10: trust, safety and legal | Done, live (deployed 2026-10-13; existing users marked verified). |
 | 7 | Class 16: operations baseline | Next |
+| 7b | Class 18: home wilaya (local jobs first + local alerts) | Planned, after Class 16 (see ROADMAP.md) |
 | then | BETA LAUNCH CHECKPOINT, Classes 6, 7, 8, 11, 12, 13, 9, 15, 14 | Not started |
 
 ### Owner decisions already made (don't re-ask)
